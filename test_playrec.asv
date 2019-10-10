@@ -1,0 +1,5 @@
+f = 16000;
+
+T = 2;
+t=0:ts:T;
+sinewave = sin(2*pi*)
