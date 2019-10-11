@@ -2,13 +2,19 @@
 fs =  16000;
 dftsize = 512;
 % sig = sin(2*pi*1000*(0:1/fs:2));
-sig = wgn(1,fs*2+1,5);
+% sig = wgn(1,fs*2+1,5);
 
+j = 0;
+% Capacity = zeros(10,5);
 %% Measure channel
 N = dftsize / 2;
 
-Capacity = [0,0,0,0,0,0];
-for i = 1:6
+j = j + 1;
+i = 0;
+%%
+i = i + 1
+%%
+% for i = 1:5
 % Record noise
 simin = zeros(fs*2,1);
 nbsecs = length(simin)/fs;
@@ -17,7 +23,7 @@ out = simout.signals.values;
 [noise_s,noise_f,noise_t,noise_psd] = spectrogram(out,dftsize,dftsize/2,dftsize,fs);
 
 % Record signal
-simin = sig';
+simin = [zeros(fs,1);sig';zeros(fs,1)];
 if (max(simin) ~= min(simin))
     simin = 2 * (simin - min(simin)) / (max(simin)-min(simin)) - 1;
 end
@@ -25,6 +31,7 @@ nbsecs = length(simin)/fs;
 sim('recplay');
 out = simout.signals.values;
 [sig_s,sig_f,sig_t,sig_psd] = spectrogram(out,dftsize,dftsize/2,dftsize,fs);
+sig_psd = sig_psd(1:end,(fs*2/dftsize):(end-fs*2/dftsize));
 
 % Take average
 noise_psd = mean(noise_psd,2);
@@ -33,8 +40,8 @@ sig_psd = mean(sig_psd,2);
 % Remove noise from signal
 sig_pd = sig_psd - noise_psd;
 
-Capacity(i) = sum(sum(log2(sig_psd ./ noise_psd + 1))) * fs / (2*N);
-end
+Capacity(j,i) = sum(sum(log2(sig_psd ./ noise_psd + 1))) * fs / (2*N);
+% end
 
 %% Plot noise and signal
 figure
