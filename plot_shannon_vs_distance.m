@@ -15,8 +15,8 @@ sig = wgn(1,fs*signal_length+1,5);
 
 %% Measure
 N = dftsize / 2;
-for i = 15:nb_distances
-    for j = 4:nb_tests
+for i = 1:nb_distances
+    for j = 1:nb_tests
         % Record noise
         simin = zeros(fs*signal_length,1);
         nbsecs = length(simin)/fs;
@@ -44,13 +44,14 @@ for i = 15:nb_distances
 
         Capacity(i,j) = sum(sum(log2(sig_psd ./ noise_psd + 1))) * fs / (2*N);
     end
-    disp("Move to next distance and continue");
+    disp('Move to next distance and continue');
     pause
 end
 
 %% Plot
 X = 0:distance_interval:distance_interval*(nb_distances-1);
 Y = mean(Capacity,2);
-err = tinv(1-conf_interval_perc/2,nb_tests-1) * std(Capacity,0,2) / sqrt(nb_tests);
+% err = tinv(1-conf_interval_perc/2,nb_tests-1) * std(Capacity,0,2) / sqrt(nb_tests);
+err = 2 * std(Capacity,0,2) / sqrt(nb_tests);
 
 errorbar(X,Y,err);
