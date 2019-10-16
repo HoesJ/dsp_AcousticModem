@@ -24,7 +24,7 @@ f = dftsize;
 
 figure
 subplot(2,1,1);
-[s_in,f_in,t_in,ps_in] = spectrogram(simin,dftsize,dftsize/2,f,fs);
+[s_in,f_in,t_in,ps_in] = spectrogram(simin(1:end,1),dftsize,dftsize/2,f,fs);
 imagesc('XData',t_in,'YData',f_in,'CData',10*log10(abs(s_in)))
 title('input');
 

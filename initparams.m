@@ -7,4 +7,5 @@ function [simin,nbsecs,fs]=initparams(toplay,fs)
     simin = [simin;toplay];
     simin = [simin; zeros(fs,1)];
     nbsecs = length(simin)/fs;
+    simin = [simin,simin];
 end
