@@ -11,11 +11,14 @@ threshold = 0.002;
 y = out(find(out> threshold,1):(find(out> threshold,1)+150));
 
 figure
-subplot(2,1,1)
-plot(y);
-subplot(2,1,2);
+subplot(4,1,1)
+plot(simin);
+subplot(4,1,2);
+plot(out);
+subplot(4,1,3);
+plot(y)
+subplot(4,1,4);
 plot(abs(fft(y)))
-
 %%
 
 
