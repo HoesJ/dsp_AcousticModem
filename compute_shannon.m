@@ -1,20 +1,10 @@
 %% Initialize
 fs =  16000;
 dftsize = 512;
-% sig = sin(2*pi*1000*(0:1/fs:2));
-% sig = wgn(1,fs*2+1,5);
 
-j = 0;
-% Capacity = zeros(10,5);
 %% Measure channel
 N = dftsize / 2;
 
-j = j + 1;
-i = 0;
-%%
-i = i + 1
-%%
-% for i = 1:5
 % Record noise
 simin = zeros(fs*2,1);
 nbsecs = length(simin)/fs;
@@ -40,8 +30,7 @@ sig_psd = mean(sig_psd,2);
 % Remove noise from signal
 sig_pd = sig_psd - noise_psd;
 
-Capacity(j,i) = sum(sum(log2(sig_psd ./ noise_psd + 1))) * fs / (2*N);
-% end
+Capacity = sum(sum(log2(sig_psd ./ noise_psd + 1))) * fs / (2*N);
 
 %% Plot noise and signal
 figure

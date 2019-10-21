@@ -49,9 +49,11 @@ for i = 1:nb_distances
 end
 
 %% Plot
+load('capacity_v_dist2.mat');
 X = 0:distance_interval:distance_interval*(nb_distances-1);
 Y = mean(Capacity,2);
 % err = tinv(1-conf_interval_perc/2,nb_tests-1) * std(Capacity,0,2) / sqrt(nb_tests);
 err = 2 * std(Capacity,0,2) / sqrt(nb_tests);
+
 
 errorbar(X,Y,err);

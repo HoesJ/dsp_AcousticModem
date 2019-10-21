@@ -1,5 +1,10 @@
-%% IR1 play impulse
+%% Configuration
 fs = 16000;
+L = 300;
+K = 3000;
+delay = 150;
+
+%% IR1 play impulse
 sig1 = ones(1,1);
 
 [simin,nbsecs,fs] = initparams(sig1', fs);
@@ -8,8 +13,9 @@ sim('recplay')
 out1 = simout.signals.values;
 
 %% IR1
-threshold = 0.0015;
-IR1 = out1(find(out1> threshold,1):(find(out1> threshold,1)+150));
+threshold = max(out1)*0.5;
+index = find(out1(fs*2:end) > threshold,1) + 2*fs
+IR1 = out1(index:index+L);
 
 % Makes a onesided fft
 P2 = abs(fft(IR1)/length(IR1));
@@ -24,11 +30,9 @@ sim('recplay')
 out2 = simout.signals.values;
 
 %% IR2 estimate
-
-delay = 150;
-L = 300;
-K = 3000;
-y = out2(find(out2> threshold,1):(find(out2> threshold,1)+fs*2));
+threshold = max(out2)*0.5;
+index = find(out2(fs*2:end) > threshold,1) + 2 * fs
+y = out2(index:index+fs*2);
 delayed_y = [zeros(delay,1);y];
 u = sig2;
 A = toeplitz(u(L:K),fliplr(u(1:L)));
@@ -66,12 +70,14 @@ plot(f_in, 10*log10(mean(ps_in,2)));
 title('PSD transmitted noise');
 xlabel('f (Hz)');
 ylabel('amplitude (dB)');
+% ylim([-80 -40]);
 
 subplot(2,1,2);
 plot(f_out, 10*log10(mean(ps_out,2)));
 title('PSD recorded noise');
 xlabel('f (Hz)');
 ylabel('amplitude (dB)');
+% ylim([-80 -40]);
 
 %% Channel time and frequency response plots, based on IR1.m
 
@@ -81,24 +87,29 @@ plot(simin1);
 title('transmitted impulse');
 xlabel('t (s)');
 ylabel('amplitude');
+% ylim([-1 1]);
 
 subplot(4,1,2);
 plot(out1);
 title('recorded signal');
 xlabel('t (s)');
 ylabel('amplitude');
+% ylim([-0.5 0.5]);
 
 subplot(4,1,3);
 plot(IR1);
 title('Time response');
 xlabel('sample');
 ylabel('amplitude');
+ylim([-1e-3 1e-3]);
+
 
 subplot(4,1,4);
 plot(linspace(0,fs/2,length(P1)),10*log10(P1));
 title('one sided frequency response');
 xlabel('f (Hz)');
 ylabel('amplitude (dB)');
+ylim([-80 -40]);
 
 %% Channel time and frequency response plots, based on IR2.m
 
@@ -108,21 +119,25 @@ plot(simin2);
 title('transmitted noise');
 xlabel('t (s)');
 ylabel('amplitude');
+% ylim([-1 1]);
 
 subplot(4,1,2);
 plot(out2);
 title('recorded noise');
 xlabel('t (s)');
 ylabel('amplitude');
+% ylim([-0.5 0.5]);
 
 subplot(4,1,3);
 plot(h);
 title('Time response');
 xlabel('sample');
 ylabel('amplitude');
+ylim([-1e-3 1e-3]);
 
 subplot(4,1,4);
 plot(linspace(0,fs/2,length(H)),10*log10(H));
 title('one sided frequency response');
 xlabel('f (Hz)');
 ylabel('amplitude (dB)');
+ylim([-80 -40]);
