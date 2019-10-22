@@ -12,4 +12,8 @@ bandpower(qam)
 bandpower(sig)
 
 demodSig = qam_demod(sig,M);
-avg(im())
+sum(ranseq-demodSig)
+std(ranseq-demodSig)
+cd = comm.ConstellationDiagram('ShowReferenceConstellation',false);
+step(cd,sig)
+[numberErr,ratio] = biterr(ranseq,demodSig)
