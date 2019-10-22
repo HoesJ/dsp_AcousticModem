@@ -1,15 +1,17 @@
-%% Create a filte
+%% Create a filter
 fs = 16000;
-lower = 700 /  8000;
-upper = 3000 / 8000;
+lower = 700 /  fs;
+upper = 3000 / fs;
 
-order = 60;
-filter = fir1(order, [lower upper], 'stop');
-fvtool(filter,1);
+order = 100;
+filter1 = fir1(order, [lower upper], 'stop');
+fvtool(filter1,1);
 
 %% Do IR2 experiment
 fs = 16000;
-sig = conv(wgn(1,fs*2+1,5), filter);
+%sig = conv(wgn(1,fs*2+1,10), filter);
+%a = [1,1];
+sig = filter(filter1,1,wgn(1,fs*2+1,10))
 [simin,nbsecs,fs] = initparams(sig', fs);
 sim('recplay')
 out = simout.signals.values;
@@ -25,8 +27,8 @@ index = find(out(fs*2:end) > threshold,1) + 2 * fs;
 y = out(index:index+fs*2);
 plot(y);
 
-delay = 150;
-L = 300;
+delay = 300;
+L = 700;
 K = 3000;
 delayed_y = [zeros(delay,1);y];
 u = sig;
@@ -36,7 +38,7 @@ figure
 subplot(2,1,1)
 plot(h);
 subplot(2,1,2)
-plot(abs(fft(h)))
+plot(mag2db(abs(fft(h))))
 
 %%
 dftsize = 512;

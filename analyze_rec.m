@@ -2,8 +2,8 @@
 
 %% som van sinusen
 fs = 16000;
-frequencies = [100,200,500,1000,1500,2000,4000,6000];
-% frequencies = 100:200:10000;
+% frequencies = [100,200,500,1000,1500,2000,4000,6000];
+ frequencies = 6000;
 sig = zeros(1,fs*2+1);
 for i = 1:length(frequencies)
    sig = sig+sin(2*pi*frequencies(i)*(0:1/fs:2));
