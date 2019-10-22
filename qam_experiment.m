@@ -28,6 +28,10 @@ for i = 1:length(Ms)
         [numberErr,result(i,j)] = ber(ranseq,demodSig);   
     end
 end
-
+%%
 surf(Ms, SNRs, result');
+xlabel('Ms')
+ylabel('SNRs')
+zlabel('result')
+
 

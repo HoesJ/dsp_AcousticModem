@@ -1,1 +1,1 @@
-n = dftsize
+[ofdmSeq] = ofdm_mod(qam,8,5);
