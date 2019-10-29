@@ -1,7 +1,6 @@
 function [ofdm_seq] = ofdm_mod(qamsig,N,P)
    %N is the frame size
    qamstep = N/2-1;
-   disp(qamstep)
    ofdm_seq = zeros(N,1);
    
 for i = 1:N/2-1:P*(N/2-1)

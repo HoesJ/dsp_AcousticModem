@@ -36,7 +36,7 @@ for i = 1:length(Ms)
         [ofdmSeq] = ofdm_mod(qam,N,P);
         
         % Add noise
-        ofdmSeq = awgn(ofdmSeq, SNRs(i));
+        ofdmSeq = awgn(ofdmSeq, SNRs(j));
 
         % make returned QAM
         [returnedqam] = ofdm_demod(ofdmSeq,N,P);
@@ -47,10 +47,14 @@ for i = 1:length(Ms)
     end
 end
 
-surf(Ms, SNRs, result');
-xlabel('Ms')
-ylabel('SNRs')
-zlabel('result')
+imagesc('XData',SNRs,'YData',Ms,'CData',result);
+title('BER');
+xlabel('SNR');
+ylabel('M')
+% surf(Ms, SNRs, result');
+% xlabel('Ms')
+% ylabel('SNRs')
+% zlabel('result')
 
 
 
