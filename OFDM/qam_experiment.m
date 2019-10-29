@@ -13,7 +13,7 @@ demodSig = qam_demod(sig,M);
 
 %% Try different SNR and M's
 Ms = 2.^(1:1:10);
-SNRs = 40:1:80;
+SNRs = 5:1:80;
 
 result = zeros(length(Ms),length(SNRs));
 
@@ -23,15 +23,19 @@ for i = 1:length(Ms)
         ranseq = randi([0,1],1000*k,1);
         qam = qam_mod(ranseq, Ms(i));
         sig = awgn(qam,SNRs(j));
-        SNRs(j)
         demodSig = qam_demod(sig,Ms(i));
         [numberErr,result(i,j)] = ber(ranseq,demodSig);   
     end
 end
 %%
-surf(Ms, SNRs, result');
-xlabel('Ms')
-ylabel('SNRs')
-zlabel('result')
+figure
+imagesc('XData',SNRs,'YData',Ms,'CData',result);
+title('BER (QAM)');
+xlabel('SNR');
+ylabel('M')
+% surf(Ms, SNRs, result');
+% xlabel('Ms')
+% ylabel('SNRs')
+% zlabel('result')
 
 

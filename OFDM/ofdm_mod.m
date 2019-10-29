@@ -1,13 +1,19 @@
-function [ofdm_seq] = ofdm_mod(qamsig,N,P)
-   %N is the frame size
-   qamstep = N/2-1;
-   ofdm_seq = zeros(N,1);
-   
-for i = 1:N/2-1:P*(N/2-1)
-    frame_i = ifft([0;qamsig(i:i+N/2-2);0;flip(conj(qamsig(i:i+N/2-2)))]); %workhorse of the function
-    ofdm_seq = horzcat(ofdm_seq ,frame_i);
+function [ofdm_seq] = ofdm_mod(qamsig,N,L)
+    % Pad qamsig to multiple of N/2 - 1
+    qamsig = [qamsig;zeros(ceil(length(qamsig) / (N/2-1)) * (N/2-1) - length(qamsig),1)];
     
-end
-   ofdm_seq(:,1)=[];
+    % Define P
+    P = length(qamsig) / (N / 2 - 1);
+        
+    %N is the frame size
+    matrix = [zeros(1,P);reshape(qamsig, [N/2-1,P]);zeros(1,P);conj(flip(reshape(qamsig, [N/2-1,P])))];
+    ofdm_seq = ifft(matrix);
+    
+    % add cyclic prefix
+    ofdm_seq = [ofdm_seq(N-L+1:N,:);ofdm_seq];
+    
+    % reshape to long sequence
+    ofdm_seq = reshape(ofdm_seq, [(N+L)*P 1]);
+   
 end
 
