@@ -5,13 +5,8 @@ function [qamsig] = ofdm_demod(ofdm_seq,N,P)
    qamsig = [];
    
 for i = 1:P
-    disp(i)
-
-    a = fft(ofdm_seq(:,i));
-    disp(a)
-%     frame_i = ifft([0;ofdm_seq(i:i+N/2-2);0;flip(conj(ofdm_seq(i:i+N/2-2)))]); %workhorse of the function
-%     disp(frame_i')
-    qamsig = [qamsig a'];
+    frame = fft(ofdm_seq(:,i));
+    qamsig = [qamsig;frame(2:qamstep+1,1)];
     
 end
     

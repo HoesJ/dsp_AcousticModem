@@ -1,0 +1,17 @@
+function [qamsig] = ofdm_demod(ofdm_seq,N,P)
+   %N is the frame size
+   qamstep = N/2-1;
+   disp(qamstep)
+   qamsig = [];
+   
+for i = 1:P
+    frame = fft(ofdm_seq(:,i));
+    disp(frame)
+%     frame_i = ifft([0;ofdm_seq(i:i+N/2-2);0;flip(conj(ofdm_seq(i:i+N/2-2)))]); %workhorse of the function
+%     disp(frame_i')
+    disp(size(frame(2:qamste,1))
+    qamsig = [qamsig frame(2, N/2 - 1)'];
+    
+end
+    
+end
