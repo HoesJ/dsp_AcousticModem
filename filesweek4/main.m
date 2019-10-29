@@ -13,10 +13,10 @@ L = 120; %length impulse response;
 ofdmStream = ofdm_mod(qamStream, N, L);
 
 % Channel
-SNR = 80; %addes noise snr
+SNR = 40; %addes noise snr
 % rxOfdmStream = awgn(ofdmStream, SNR);
 
-h = fir1(100, 0.3, 'low');
+% h = fir1(100, 0.3, 'low');
 % h = rand(L,1);
 rxOfdmStream = fftfilt(h,ofdmStream);
 rxOfdmStream = awgn(rxOfdmStream, SNR, 'measured');
@@ -35,3 +35,9 @@ imageRx = bitstreamtoimage(rxBitStream, imageSize, bitsPerPixel);
 % Plot images
 subplot(2,1,1); colormap(colorMap); image(imageData); axis image; title('Original image'); drawnow;
 subplot(2,1,2); colormap(colorMap); image(imageRx); axis image; title(['Received image']); drawnow;
+
+%% BER per bin
+res = zeros(N,1);
+for i = 1:N
+   rx = rxBitStre 
+end
