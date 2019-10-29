@@ -1,4 +1,7 @@
-function [qamsig] = ofdm_demod(ofdm_seq,N,L)
+function [qamsig] = ofdm_demod(ofdm_seq,N,L,h)
+    % Define P
+    P = length(ofdm_seq) / (N + L);
+    
     % reshape ofdm_sig
     qamsig = reshape(ofdm_seq, [N+L P]);
     
@@ -11,16 +14,9 @@ function [qamsig] = ofdm_demod(ofdm_seq,N,L)
     % throw away copies
     qamsig = qamsig(2:N/2,:);
     
-    % reshape to a line
-    qamsig = reshape(qamsig, [(N/2 - 1) * P 1]);
-%    %N is the frame size
-%    qamstep = N/2-1;
-%    qamsig = [];
-%    
-% for i = 1:P
-%     frame = fft(ofdm_seq(:,i));
-%     qamsig = [qamsig;frame(2:qamstep+1,1)];
-%     
-% end
+        % Channel equalisation
+    h = [h,zeros(length(h)
     
+    % reshape to a line
+    qamsig = reshape(qamsig, [(N/2 - 1) * P 1]);    
 end

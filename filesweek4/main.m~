@@ -8,7 +8,7 @@ qam_order = 64;
 qamStream = qam_mod(bitStream, qam_order);
 
 % OFDM modulation
-N= 512;
+N= 64;
 L = 100; %length impulse response;
 ofdmStream = ofdm_mod(qamStream, N, L);
 
@@ -16,11 +16,11 @@ ofdmStream = ofdm_mod(qamStream, N, L);
 % SNR = 20; %addes noise snr
 % rxOfdmStream = awgn(ofdmStream, SNR);
 
-h = rand(L,1);
-rxOfdmStream = fftfilt(h,ofdmStream);
+h = rand(1, L);
+rxOfdmStream = conv(ofdmStream;
 
 % OFDM demodulation
-rxQamStream = ofdm_demod(rxOfdmStream, N, L, h);
+rxQamStream = ofdm_demod(rxOfdmStream, N, L);
 
 % QAM demodulation
 rxBitStream = qam_demod(rxQamStream, qam_order);

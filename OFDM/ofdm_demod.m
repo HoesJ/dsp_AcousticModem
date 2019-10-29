@@ -1,4 +1,4 @@
-function [qamsig] = ofdm_demod(ofdm_seq,N,L)
+function [qamsig] = ofdm_demod(ofdm_seq,N,L,h)
     % Define P
     P = length(ofdm_seq) / (N + L);
     
@@ -13,6 +13,10 @@ function [qamsig] = ofdm_demod(ofdm_seq,N,L)
     
     % throw away copies
     qamsig = qamsig(2:N/2,:);
+    
+    % Channel equalisation
+    H = fft(h, N);
+    qamsig = diag(H(2:N/2))\qamsig;
     
     % reshape to a line
     qamsig = reshape(qamsig, [(N/2 - 1) * P 1]);    

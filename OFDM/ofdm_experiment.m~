@@ -35,13 +35,13 @@ for i = 1:length(Ms)
         % Generate OFDM
         N = 64;
         L = 3;
-        [ofdmSeq] = ofdm_mod(qam,N,L);
+        [ofdmSeq] = ofdm_mod(qam,N,P);
         
         % Add noise
         ofdmSeq = awgn(ofdmSeq, SNRs(j));
 
         % make returned QAM
-        [returnedqam] = ofdm_demod(ofdmSeq,N,L);
+        [returnedqam] = ofdm_demod(ofdmSeq,N,P);
 
         % demodulate
         receivedSig = qam_demod(returnedqam,M);
