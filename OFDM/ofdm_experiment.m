@@ -1,3 +1,5 @@
+% R = log2(M) * (N/2 - 1) * fs / (N + L) -- [bits/QAM] * [QAM / frame] * [frame / s]
+
 % Generate QAM
 M = 64;
 k = log2(M);
