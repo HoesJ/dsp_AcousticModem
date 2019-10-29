@@ -20,7 +20,7 @@ threshold = 0.004;
 plot(out(find(out> threshold,1):find(out> threshold,1)+fs*2));
 
 %%
-delay = 150;
+delay = 20;
 L = 300;
 K = 3000;
 y = out(find(out> threshold,1):(find(out> threshold,1)+fs*2));

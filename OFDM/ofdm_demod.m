@@ -17,6 +17,7 @@ function [qamsig] = ofdm_demod(ofdm_seq,N,L,h)
     % Channel equalisation
     H = fft(h, N);
     qamsig = diag(H(2:N/2))\qamsig;
+%     qamsig = qamsig./H(2:N/2);
     
     % reshape to a line
     qamsig = reshape(qamsig, [(N/2 - 1) * P 1]);    
