@@ -4,7 +4,7 @@
 [bitStream, imageData, colorMap, imageSize, bitsPerPixel] = imagetobitstream('image.bmp');
 
 % QAM modulation
-qam_order = 64*2*2;
+qam_order = 256;
 qamStream = qam_mod(bitStream, qam_order);
 
 % OFDM modulation
@@ -13,13 +13,13 @@ L = 120; %length impulse response;
 ofdmStream = ofdm_mod(qamStream, N, L);
 
 % Channel
-SNR = 40; %addes noise snr
+SNR = 25; %addes noise snr
 % rxOfdmStream = awgn(ofdmStream, SNR);
-
 % h = fir1(100, 0.3, 'low');
 % h = rand(L,1);
 rxOfdmStream = fftfilt(h,ofdmStream);
 rxOfdmStream = awgn(rxOfdmStream, SNR, 'measured');
+
 % OFDM demodulation
 rxQamStream = ofdm_demod(rxOfdmStream, N, L, h);
 
@@ -38,6 +38,11 @@ subplot(2,1,2); colormap(colorMap); image(imageRx); axis image; title(['Received
 
 %% BER per bin
 res = zeros(N,1);
-for i = 1:N
-   rx = rxBitStre 
+for k = 1:length(qamStream)/N
+    for i = 1:N
+       rx = rxBitStream((i-1)*8+1+(k-1)*N*8:i*8+(k-1)*N*8);
+       tx = bitStream((i-1)*8+1+(k-1)*N*8:i*8+(k-1)*N*8);
+       [t,~] = ber(rx,tx);
+       res(i) = res(i) + t;
+    end
 end
