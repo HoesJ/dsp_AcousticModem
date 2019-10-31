@@ -13,7 +13,7 @@ L = 120; %length impulse response;
 ofdmStream = ofdm_mod(qamStream, N, L);
 
 % Channel
-SNR = 15; %addes noise snr
+SNR = 20; %addes noise snr
 % rxOfdmStream = awgn(ofdmStream, SNR);
 % h = fir1(100, 0.3, 'low');
 % h = rand(L,1);
@@ -38,23 +38,21 @@ subplot(2,1,2); colormap(colorMap); image(imageRx); axis image; title(['Received
 
 %% BER per bin
 res = zeros(N,1);
+ratio = zeros(N,1);
 for k = 1:length(qamStream)/N
     for i = 1:N
        rx = rxBitStream((i-1)*8+1+(k-1)*N*8:i*8+(k-1)*N*8);
        tx = bitStream((i-1)*8+1+(k-1)*N*8:i*8+(k-1)*N*8);
-       [t,~] = ber(rx,tx);
+       [t,p] = ber(rx,tx);
        res(i) = res(i) + t;
+       ratio(i) = ratio(i) + p;
     end
 end
-
-
-
-%%
-% P = length(qamsig) / (N / 2 - 1);
-% a = reshape(rxBitStream,[N/2-1,P]);
 %%
 figure
-subplot(2,1,1)
+subplot(3,1,1)
 plot(abs(fft(h)));
-subplot(2,1,2)
+subplot(3,1,2)
+plot(ratio);
+subplot(3,1,3)
 plot(res);
