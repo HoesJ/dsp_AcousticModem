@@ -5,6 +5,9 @@ function [demodSig] = qam_demod(qamSig,order)
         qamSig = transpose(reshape(qamSig, [length(order) length(qamSig)/length(order)]));
         demodSig = zeros(size(qamSig,1), sum(order));
         for i = 1:length(order)
+            if (order(i) == 0)
+                continue;
+            end
             fBin = qamSig(:,i);
             demodfBin = qamdemod(fBin,2^order(i),'outputtype','bit','UnitAveragePower',true);
             demodfBin = reshape(demodfBin, [order(i) length(demodfBin)/order(i)]);

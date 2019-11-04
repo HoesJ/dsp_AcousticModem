@@ -10,6 +10,10 @@ function [qam] = qam_mod(inputSig,order)
         inputSig = transpose(reshape(inputSig, [nbCols nbRows]));
         qam = zeros(nbRows, length(order));
         for i = 1:length(order)
+            if (order(i) == 0)
+                qam(:,i) = zeros(nbRows,1);
+                continue;
+            end
             start = sum(order(1:i)) - order(i)+1;
             stop = start + order(i) -1;
             fBin = inputSig(:,start:stop)';
