@@ -13,7 +13,7 @@ L = 120; %length impulse response;
 ofdmStream = ofdm_mod(qamStream, N, L);
 
 % Channel
-SNR = 45;
+SNR = 25;
 rxOfdmStream = fftfilt(h,ofdmStream);
 rxOfdmStreamWithNoise = awgn(rxOfdmStream, SNR, 'measured');
 

@@ -32,4 +32,16 @@ figure
 imagesc('XData',SNRs,'YData',Ms,'CData',result);
 title('BER (QAM)');
 xlabel('SNR');
-ylabel('M')
+ylabel('M');
+
+figure
+hold on
+plot(Ms, result(:,6));
+plot(Ms, result(:,11));
+plot(Ms, result(:,16));
+plot(Ms, result(:,26));
+plot(Ms, result(:,36));
+xlabel('M');
+ylabel('BER');
+legend('10 SNR', '15 SNR', '20 SNR', '30 SNR', '40 SNR');
+hold off
