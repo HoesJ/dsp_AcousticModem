@@ -49,13 +49,7 @@ plot(res)
 
 %% Adaptive bit loading
 noiseInTime = rxOfdmStreamWithNoise - rxOfdmStream;
-noiseQam = ofdm_demod(noiseInTime, N, L);
-noiseQam = reshape(noiseQam, [N/2-1 length(noiseQam)/(N/2-1)]);
-Pn = mean(abs(noiseQam).^2,2);
+noiseQam = ofdm_demod(noiseInTime, N, L, h);
 
-H = fft(h,N-3);
-H = H(1:N/2-1);
-
-b = floor(log2(1+(abs(H).^2) ./ (10*Pn)));
 
 

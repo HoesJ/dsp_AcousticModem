@@ -15,7 +15,7 @@ function [qamsig] = ofdm_demod(ofdm_seq,N,L,h)
     qamsig = qamsig(2:N/2,:);
     
     % Channel equalisation
-    if nargin >= 4
+    if nargin
         H = fft(h, N);
         qamsig = diag(H(2:N/2))\qamsig;
     end
