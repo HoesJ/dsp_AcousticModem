@@ -35,13 +35,14 @@ subplot(2,1,2); colormap(colorMap); image(imageRx); axis image; title(['Received
 
 %% BER per bin
 res = zeros(N,1);
-M = log2(qam_order);
+ratio = zeros(N,1);
 for k = 1:length(qamStream)/N
     for i = 1:N
-       rx = rxBitStream((i-1)*M+1+(k-1)*N*M:i*M+(k-1)*N*M);
-       tx = bitStream((i-1)*M+1+(k-1)*N*M:i*M+(k-1)*N*M);
-       [t,~] = ber(rx,tx);
+       rx = rxBitStream((i-1)*8+1+(k-1)*N*8:i*8+(k-1)*N*8);
+       tx = bitStream((i-1)*8+1+(k-1)*N*8:i*8+(k-1)*N*8);
+       [t,p] = ber(rx,tx);
        res(i) = res(i) + t;
+       ratio(i) = ratio(i) + p;
     end
 end
 figure
@@ -57,5 +58,4 @@ H = fft(h,N-3);
 H = H(1:N/2-1);
 
 b = floor(log2(1+(abs(H).^2) ./ (10*Pn)));
-
 

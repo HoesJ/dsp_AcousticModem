@@ -13,7 +13,7 @@ demodSig = qam_demod(sig,M);
 
 %% Try different SNR and M's
 Ms = 2.^(1:1:10);
-SNRs = 5:1:80;
+SNRs = 5:1:40;
 
 result = zeros(length(Ms),length(SNRs));
 

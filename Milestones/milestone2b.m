@@ -8,17 +8,20 @@ qam_order = 256;
 qamStream = qam_mod(bitStream, qam_order);
 
 % OFDM modulation
-N= 1024;
+N= 512;
 L = 120; %length impulse response;
 ofdmStream = ofdm_mod(qamStream, N, L);
 
 % Channel
-SNR = 45;
+SNR = 20; %addes noise snr
+% rxOfdmStream = awgn(ofdmStream, SNR);
+% h = fir1(100, 0.3, 'low');
+% h = rand(L,1);
 rxOfdmStream = fftfilt(h,ofdmStream);
-rxOfdmStreamWithNoise = awgn(rxOfdmStream, SNR, 'measured');
+rxOfdmStream = awgn(rxOfdmStream, SNR, 'measured');
 
 % OFDM demodulation
-rxQamStream = ofdm_demod(rxOfdmStreamWithNoise, N, L, h);
+rxQamStream = ofdm_demod(rxOfdmStream, N, L, h);
 
 % QAM demodulation
 rxBitStream = qam_demod(rxQamStream, qam_order);
@@ -35,46 +38,21 @@ subplot(2,1,2); colormap(colorMap); image(imageRx); axis image; title(['Received
 
 %% BER per bin
 res = zeros(N,1);
-<<<<<<< HEAD
-M = log2(qam_order);
-for k = 1:length(qamStream)/N
-    for i = 1:N
-       rx = rxBitStream((i-1)*M+1+(k-1)*N*M:i*M+(k-1)*N*M);
-       tx = bitStream((i-1)*M+1+(k-1)*N*M:i*M+(k-1)*N*M);
-       [t,~] = ber(rx,tx);
-=======
 ratio = zeros(N,1);
 for k = 1:length(qamStream)/N
     for i = 1:N
        rx = rxBitStream((i-1)*8+1+(k-1)*N*8:i*8+(k-1)*N*8);
        tx = bitStream((i-1)*8+1+(k-1)*N*8:i*8+(k-1)*N*8);
        [t,p] = ber(rx,tx);
->>>>>>> 1554d33ed4d375aea8b118edb62b656083e99f17
        res(i) = res(i) + t;
        ratio(i) = ratio(i) + p;
     end
 end
-<<<<<<< HEAD
-figure
-plot(res)
-
-%% Adaptive bit loading
-noiseInTime = rxOfdmStreamWithNoise - rxOfdmStream;
-noiseQam = ofdm_demod(noiseInTime, N, L);
-noiseQam = reshape(noiseQam, [N/2-1 length(noiseQam)/(N/2-1)]);
-Pn = mean(abs(noiseQam).^2,2);
-
-H = fft(h,N-3);
-H = H(1:N/2-1);
-
-b = floor(log2(1+(abs(H).^2) ./ (10*Pn)));
-
-
-=======
 %%
 figure
-subplot(2,1,1)
+subplot(3,1,1)
 plot(abs(fft(h)));
-subplot(2,1,2)
+subplot(3,1,2)
 plot(ratio);
->>>>>>> 1554d33ed4d375aea8b118edb62b656083e99f17
+subplot(3,1,3)
+plot(res);
