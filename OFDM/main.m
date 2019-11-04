@@ -1,4 +1,4 @@
-% Exercise session 4: DMT-OFDM transmission scheme
+%% Simple transmssion
 
 % Convert BMP image to bitstream
 [bitStream, imageData, colorMap, imageSize, bitsPerPixel] = imagetobitstream('image.bmp');
@@ -8,15 +8,12 @@ qam_order = 256;
 qamStream = qam_mod(bitStream, qam_order);
 
 % OFDM modulation
-N= 512;
+N= 1024;
 L = 120; %length impulse response;
 ofdmStream = ofdm_mod(qamStream, N, L);
 
 % Channel
-SNR = 20; %addes noise snr
-% rxOfdmStream = awgn(ofdmStream, SNR);
-% h = fir1(100, 0.3, 'low');
-% h = rand(L,1);
+SNR = 25;
 rxOfdmStream = fftfilt(h,ofdmStream);
 rxOfdmStreamWithNoise = awgn(rxOfdmStream, SNR, 'measured');
 
@@ -48,35 +45,30 @@ for k = 1:length(qamStream)/N
     end
 end
 figure
-plot(res);
-%% Optimal constellations
-noiseInTime = rxOfdmStreamWithNoise - rxOfdmStream;
-noiseQamStream = ofdm_demod(noiseInTime, N, L, h);
-noiseQamStream = reshape(noiseQamStream, [(N/2-1) length(noiseQamStream)/(N/2-1)]);
-Pn = mean(abs(noiseQamStream).^2,2);
-% semilogy(Pn);
+plot(res)
+
+%% Use On-Off bit loading
+lastBin = 460;
+
+% Convert BMP image to bitstream
+[bitStream, imageData, colorMap, imageSize, bitsPerPixel] = imagetobitstream('image.bmp');
 
 % QAM modulation
-H = fft(h,N-3);
-H = H(1:N/2-1);
-qam_order = floor(log2(1+abs(H).^2 ./ (10*Pn)));
+qam_order = 256;
 qamStream = qam_mod(bitStream, qam_order);
 
 % OFDM modulation
-N= 512;
+N= 1024;
 L = 120; %length impulse response;
-ofdmStream = ofdm_mod(qamStream, N, L);
+ofdmStream = ofdm_mod(qamStream, N, L, lastBin);
 
 % Channel
-SNR = 20; %addes noise snr
-% rxOfdmStream = awgn(ofdmStream, SNR);
-% h = fir1(100, 0.3, 'low');
-% h = rand(L,1);
+SNR = 35;
 rxOfdmStream = fftfilt(h,ofdmStream);
 rxOfdmStreamWithNoise = awgn(rxOfdmStream, SNR, 'measured');
 
 % OFDM demodulation
-rxQamStream = ofdm_demod(rxOfdmStreamWithNoise, N, L, h);
+rxQamStream = ofdm_demod(rxOfdmStreamWithNoise, N, L, h, lastBin);
 
 % QAM demodulation
 rxBitStream = qam_demod(rxQamStream, qam_order);
@@ -91,4 +83,14 @@ imageRx = bitstreamtoimage(rxBitStream, imageSize, bitsPerPixel);
 subplot(2,1,1); colormap(colorMap); image(imageData); axis image; title('Original image'); drawnow;
 subplot(2,1,2); colormap(colorMap); image(imageRx); axis image; title(['Received image']); drawnow;
 
+%% Use adaptive bit loading
+noiseInTime = rxOfdmStreamWithNoise - rxOfdmStream;
+noiseQam = ofdm_demod(noiseInTime, N, L);
+noiseQam = reshape(noiseQam, [N/2-1 length(noiseQam)/(N/2-1)]);
+Pn = mean(abs(noiseQam).^2,2);
+
+H = fft(h,N-3);
+H = H(1:N/2-1);
+
+b = floor(log2(1+(abs(H).^2) ./ (10*Pn)));
 

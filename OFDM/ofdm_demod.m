@@ -1,4 +1,8 @@
-function [qamsig] = ofdm_demod(ofdm_seq,N,L,h)
+function [qamsig] = ofdm_demod(ofdm_seq,N,L,h,lastBin)
+    if nargin < 5
+        lastBin = N/2-1;
+    end
+
     % Define P
     P = length(ofdm_seq) / (N + L);
     
@@ -12,13 +16,14 @@ function [qamsig] = ofdm_demod(ofdm_seq,N,L,h)
     qamsig = fft(qamsig);
     
     % throw away copies
-    qamsig = qamsig(2:N/2,:);
+    qamsig = qamsig(2:lastBin+1,:);
     
     % Channel equalisation
-    H = fft(h, N);
-    qamsig = diag(H(2:N/2))\qamsig;
-%     qamsig = qamsig./H(2:N/2);
+    if ~(nargin < 4)
+        H = fft(h, N);
+        qamsig = diag(H(2:lastBin+1))\qamsig;
+    end
     
     % reshape to a line
-    qamsig = reshape(qamsig, [(N/2 - 1) * P 1]);    
+    qamsig = reshape(qamsig, [lastBin*P 1]);    
 end
