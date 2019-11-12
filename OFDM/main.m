@@ -2,8 +2,40 @@ SNR = 25;
 qam_order_default = 64;
 N_default = 1024;
 L_default = 120;
-gamma = 5;
+gamma = 10;
 load('h_channel.mat')
+%% Training sequence
+M = qam_order_default;
+N = N_default;
+L = L_default;
+
+trainblock = randi([0,1],(N/2-1)*log2(M),1);
+qam_trainblock = qam_mod(trainblock,M);
+Tx = ofdm_mod(repmat(qam_trainblock, 100, 1),N,L);
+
+Rx = fftfilt(h,Tx);
+Rx = awgn(Rx, SNR, 'measured');
+
+[qamRxStream, channelEst] = ofdm_demod(Rx,N,L,qam_trainblock);
+hEst = ifft([0;channelEst;0;conj(flip(channelEst))],N);
+hEst = hEst(1:L);
+figure
+subplot(2,2,1);
+plot(hEst);
+title('Estimated Channel (time)')
+subplot(2,2,3);
+plot(h);
+title('Real Channel (time)')
+subplot(2,2,2);
+plot(abs(channelEst));
+title('Estimated Channel (frequency)')
+subplot(2,2,4);
+plot(abs(fft(h,N)));
+title('Real Channel (frequency)')
+
+[~,biterr] = ber(qam_demod(qamRxStream,M),repmat(trainblock, 100, 1));
+disp("BER: " + num2str(biterr));
+% Rx_demod =
 %% Simple transmssion
 
 % Convert BMP image to bitstream
@@ -23,7 +55,7 @@ rxOfdmStream = fftfilt(h,ofdmStream);
 rxOfdmStreamWithNoise = awgn(rxOfdmStream, SNR, 'measured');
 
 % OFDM demodulation
-rxQamStream = ofdm_demod(rxOfdmStreamWithNoise, N, L, h);
+rxQamStream = ofdm_demod_legacy(rxOfdmStreamWithNoise, N, L, h);
 
 % QAM demodulation
 rxBitStream = qam_demod(rxQamStream, qam_order);
@@ -75,7 +107,7 @@ rxOfdmStream = fftfilt(h,ofdmStream);
 rxOfdmStreamWithNoise = awgn(rxOfdmStream, SNR, 'measured');
 
 % OFDM demodulation
-rxQamStream = ofdm_demod(rxOfdmStreamWithNoise, N, L, h, lastBin);
+rxQamStream = ofdm_demod_legacy(rxOfdmStreamWithNoise, N, L, h, lastBin);
 
 % QAM demodulation
 rxBitStream = qam_demod(rxQamStream, qam_order);
@@ -92,7 +124,7 @@ subplot(2,2,3); colormap(colorMap); image(imageRx); axis image; title(strcat('On
 
 %% Use adaptive bit loading
 noiseInTime = rxOfdmStreamWithNoise - rxOfdmStream;
-noiseQam = ofdm_demod(noiseInTime, N, L);
+noiseQam = ofdm_demod_legacy(noiseInTime, N, L);
 noiseQam = reshape(noiseQam, [N/2-1 length(noiseQam)/(N/2-1)]);
 Pn = mean(abs(noiseQam).^2,2);
 
@@ -122,7 +154,7 @@ rxOfdmStream = fftfilt(h,ofdmStream);
 rxOfdmStreamWithNoise = awgn(rxOfdmStream, SNR, 'measured');
 
 % OFDM demodulation
-rxQamStream = ofdm_demod(rxOfdmStreamWithNoise, N, L, h);
+rxQamStream = ofdm_demod_legacy(rxOfdmStreamWithNoise, N, L, h);
 
 % QAM demodulation
 rxBitStream = qam_demod(rxQamStream, qam_order);
