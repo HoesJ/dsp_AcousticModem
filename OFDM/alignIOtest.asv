@@ -1,0 +1,22 @@
+fs =16000;
+pulseLength = 0.1 *fs;
+simin = zeros(fs*10,1);
+pulse = transpose(sinc(-2:4/pulseLength:2).^2);
+simin = [simin; pulse ;zeros(150,1)];
+%%
+xcor = xcorr(simin,pulse);
+%%
+[maxCorr, maxCorrIndex] = max(xcor);
+[maxSimin, maxSiminIndex] = max(simin);
+lag = maxCorrIndex / maxSiminIndex;
+a = maxCorrIndex/fs;
+%%
+
+%%
+figure
+subplot(3,1,1)
+plot(pulse);
+subplot(3,1,2)
+plot(simin);
+subplot(3,1,3)
+plot(xcor);
