@@ -19,20 +19,30 @@ function [qamsig,H] = ofdm_demod(ofdm_seq,N,L,trainblock,trainbins)
         trainbins = 1:(N/2-1);
     end
     H = zeros(N/2-1,1);
+    count = 1;
     for i = trainbins
         A = transpose(qamsig(i,:));
-        b = repmat(trainblock(i), length(A),1);
+        b = repmat(trainblock(count), length(A),1);
         H(i) = b\A;
+        count = count + 1;
     end
-    if nargin > 4 % perform interpolation
-        h = ifft([0;H;0;conj(H)]); %%% MIRROR OK?
+    if nargin > 4 % perform interpolation        
+        h = ifft([0;H;0;conj(H)]);
         h(L+1:end) = 0;
         H = fft(h);
-        H = H(2:512);
+        H = 2*H(2:512); %% *2 omdat we vermogen hebben weggeknipt en de schaal moet terug gaan
     end
 
     % Channel equalisation
     qamsig = diag(H)\qamsig;
+    
+    % Extract data signal
+    if nargin > 4
+        databins = 1:(N/2-1);
+        databins(trainbins) = 0;
+        databins = databins(databins ~= 0);
+        qamsig = qamsig(databins,:);
+    end
     
     % reshape to a line
     qamsig = qamsig(:);    

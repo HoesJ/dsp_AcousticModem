@@ -3,12 +3,12 @@ function [simin,nbsecs,fs,pulse]=initparams(toplay,fs)
     
     % Add synchonisation pulse
     pulseLength =  0.1;
-    pulseRep = 1;
-    pulseBreak = 200;
+    pulseRep = 3;
+    pulseBreak = 120;
     pulse = transpose(sin(2*pi*1800*(0:1/fs:pulseLength)));
-    pulseAll = repmat([pulse;zeros(pulseBreak,1)],pulseRep,1);
+    pulse = repmat([pulse;zeros(pulseBreak,1)],pulseRep,1);
     
-    simin = [simin;pulseAll];
+    simin = [simin;pulse];
     
     % scale 
     if (max(toplay) ~= min(toplay))

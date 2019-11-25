@@ -14,7 +14,7 @@ if length(pulseOrThreshold) > 1
     xcor = xcor/ max(xcor);
     [~, maxCorrIndex] = max(xcor);
     delay = lags(maxCorrIndex);
-%     plot(xcor);
+    plot(xcor);
     
     sample_number = delay+ length(pulseOrThreshold)+ IRtime - safetyMargin;
     out_aligned = out(delay+ length(pulseOrThreshold)+ IRtime - safetyMargin:end);
