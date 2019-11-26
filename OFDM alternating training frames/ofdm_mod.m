@@ -1,7 +1,7 @@
 function [ofdm_seq] = ofdm_mod(qamsig,N,L,trainblock,Lt,Ld)
-    
-        % Pad qamsig to multiple of lastBin (N/2-1)
-        qamsig = [qamsig;zeros(ceil(length(qamsig) / (N/2 - 1)) * (N/2 - 1) - length(qamsig),1)];
+        % Pad qamsig to multiple of lastBin*Ld (N/2-1)
+        mult = (N/2-1) * Ld;
+        qamsig = [qamsig;zeros(ceil(length(qamsig) / mult) * mult - length(qamsig),1)];
 
         % Define P
         P = length(qamsig) / (N/2 - 1);
@@ -17,6 +17,8 @@ function [ofdm_seq] = ofdm_mod(qamsig,N,L,trainblock,Lt,Ld)
         
         %interleaving of data and training
         ofdm_packet = [];
+        num_total = (P/Ld)*(Lt+Ld);
+        for i = 1;
         for i = 1:size(dataframe, 2)
            if (mod(i, Ld))
                 ofdm_packet = [ofdm_packet, repmat(ofdm_training, 1, Lt), ofdm_data(:,i:(i+Ld-1))];

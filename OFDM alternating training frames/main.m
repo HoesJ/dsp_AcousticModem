@@ -8,8 +8,8 @@ M = qam_order_default;
 N = N_default;
 L = L_default;
 
-Lt = 2;
-Ld = 2;
+Lt = 3;
+Ld = 5;
 
 % Convert; BMP image to bitstream
 [bitStream, imageData, colorMap, imageSize, bitsPerPixel] = imagetobitstream('image.bmp');
