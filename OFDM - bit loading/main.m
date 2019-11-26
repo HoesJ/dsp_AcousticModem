@@ -1,4 +1,4 @@
-SNR = 25;
+SNR = 15;
 qam_order_default = 64;
 N_default = 1024;
 L_default = 120;
@@ -23,7 +23,7 @@ rxOfdmStream = fftfilt(h,ofdmStream);
 rxOfdmStreamWithNoise = awgn(rxOfdmStream, SNR, 'measured');
 
 % OFDM demodulation
-rxQamStream = ofdm_demod_legacy(rxOfdmStreamWithNoise, N, L, h);
+rxQamStream = ofdm_demod(rxOfdmStreamWithNoise, N, L, h);
 
 % QAM demodulation
 rxBitStream = qam_demod(rxQamStream, qam_order);
@@ -75,7 +75,7 @@ rxOfdmStream = fftfilt(h,ofdmStream);
 rxOfdmStreamWithNoise = awgn(rxOfdmStream, SNR, 'measured');
 
 % OFDM demodulation
-rxQamStream = ofdm_demod_legacy(rxOfdmStreamWithNoise, N, L, h, lastBin);
+rxQamStream = ofdm_demod(rxOfdmStreamWithNoise, N, L, h, lastBin);
 
 % QAM demodulation
 rxBitStream = qam_demod(rxQamStream, qam_order);
@@ -92,7 +92,7 @@ subplot(2,2,3); colormap(colorMap); image(imageRx); axis image; title(strcat('On
 
 %% Use adaptive bit loading
 noiseInTime = rxOfdmStreamWithNoise - rxOfdmStream;
-noiseQam = ofdm_demod_legacy(noiseInTime, N, L);
+noiseQam = ofdm_demod(noiseInTime, N, L);
 noiseQam = reshape(noiseQam, [N/2-1 length(noiseQam)/(N/2-1)]);
 Pn = mean(abs(noiseQam).^2,2);
 
@@ -122,7 +122,7 @@ rxOfdmStream = fftfilt(h,ofdmStream);
 rxOfdmStreamWithNoise = awgn(rxOfdmStream, SNR, 'measured');
 
 % OFDM demodulation
-rxQamStream = ofdm_demod_legacy(rxOfdmStreamWithNoise, N, L, h);
+rxQamStream = ofdm_demod(rxOfdmStreamWithNoise, N, L, h);
 
 % QAM demodulation
 rxBitStream = qam_demod(rxQamStream, qam_order);
