@@ -1,5 +1,5 @@
 function [qamsig,H] = ofdm_demod(ofdm_seq,N,L,trainblock,Lt,Ld)
-    % Padd  signal
+    % Padd  signal to buckets
     ofdm_seq = [ofdm_seq;zeros(ceil(length(ofdm_seq) / (N+L)) * (N+L) - length(ofdm_seq),1)];
 
     % reshape ofdm_sig
@@ -15,28 +15,25 @@ function [qamsig,H] = ofdm_demod(ofdm_seq,N,L,trainblock,Lt,Ld)
     qamsig = qamsig(2:N/2,:);
     
     % Channel estimation
-    num_processing_blocks = size(qamsig,2)/(Lt+Ld);
+    num_processing_blocks = floor(size(qamsig,2)/(Lt+Ld)); % POSSIBLE POINT OF ERRORS
     H = zeros(N/2-1, num_processing_blocks);
     for i = 1:num_processing_blocks
         for j = 1:length(trainblock)
-            A = transpose(qamsig(i,(i*(Lt+Ld)+1):(i*(Lt+Ld)+1+L) ));
-            b = repmat(trainblock(count), length(A),1);
-            H(i) = b\A;
-            count = count + 1;
+            A = transpose(qamsig(j,((i-1)*(Lt+Ld)+1):((i-1)*(Lt+Ld)+Lt) ));
+            b = repmat(trainblock(j), size(A,1),1);
+            H(j,i) = b\A;
         end
+        disp(i);
     end
 
-    % Channel equalisation
-    qamsig = diag(H)\qamsig;
-    
-    % Extract data signal
-    if nargin > 4
-        databins = 1:(N/2-1);
-        databins(trainbins) = 0;
-        databins = databins(databins ~= 0);
-        qamsig = qamsig(databins,:);
+    % Channel equalisation and data extraction
+    datasig = zeros(N/2-1,num_processing_blocks*Ld);
+    for i = 1:num_processing_blocks
+        extractrange = ((i-1)*(Lt+Ld)+Lt+1):((i-1)*(Lt+Ld)+Lt+Ld);
+        storerange = ((i-1)*Ld+1):(i*Ld);
+        datasig(:,storerange) = diag(H(:,i))\qamsig(:,extractrange);
     end
     
     % reshape to a line
-    qamsig = qamsig(:);    
+    qamsig = datasig(:);    
 end

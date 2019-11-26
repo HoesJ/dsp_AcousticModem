@@ -26,13 +26,13 @@ qamStream = qam_mod(bitStream, qam_order);
 ofdmStream = ofdm_mod(qamStream, N, L, qam_trainblock, Lt, Ld);
 
 % Channel
-[simin,nbsecs,fs,pulse]=initparams(ofdmstream,fs, L);
+[simin,nbsecs,fs,pulse]=initparams(ofdmStream,fs, L);
 sim('recplay');
 out = simout.signals.values;
 [rxOfdmStream,~] = alignIO(out,pulse);
-
+%%
 % OFDM demodulation
-rxQamStream = ofdm_demod(rxOfdmStream, N, L, h);
+[rxQamStream, H] = ofdm_demod(rxOfdmStream, N, L, qam_trainblock, Lt, Ld);
 
 % QAM demodulation
 rxBitStream = qam_demod(rxQamStream, qam_order);

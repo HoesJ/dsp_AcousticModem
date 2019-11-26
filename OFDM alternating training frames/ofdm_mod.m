@@ -26,6 +26,6 @@ function [ofdm_seq] = ofdm_mod(qamsig,N,L,trainblock,Lt,Ld)
         ofdm_seq = [ofdm_packet(N-L+1:N,:);ofdm_packet];
 
         % reshape to long sequence
-        ofdm_seq = reshape(ofdm_seq, [(N+L)*P 1]);
+        ofdm_seq = ofdm_seq(:);
 end
 
