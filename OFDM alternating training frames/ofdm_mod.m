@@ -16,14 +16,21 @@ function [ofdm_seq] = ofdm_mod(qamsig,N,L,trainblock,Lt,Ld)
         ofdm_training = ifft(trainingframe);
         
         %interleaving of data and training
-        ofdm_packet = [];
-        num_total = (P/Ld)*(Lt+Ld);
-        for i = 1;
-        for i = 1:size(dataframe, 2)
-           if (mod(i, Ld))
-                ofdm_packet = [ofdm_packet, repmat(ofdm_training, 1, Lt), ofdm_data(:,i:(i+Ld-1))];
+        num_processing_blocks = P/Ld;
+        prototype = [ones(1,Lt), zeros(1,Ld)];
+        indices = repmat(prototype, 1, num_processing_blocks);
+        
+        ofdm_packet = zeros(N, num_processing_blocks * (Lt+Ld));
+        data_counter = 1;
+        for i = 1:length(indices)
+           if (indices(i))
+                ofdm_packet(:,i) = ofdm_training;
+           else
+               ofdm_packet(:,i) = ofdm_data(:,data_counter);
+               data_counter = data_counter + 1;
            end
         end
+        
         % add cyclic prefix
         ofdm_seq = [ofdm_packet(N-L+1:N,:);ofdm_packet];
 
