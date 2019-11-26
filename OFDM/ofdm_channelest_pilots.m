@@ -1,7 +1,7 @@
 SNR = 25;
-qam_order_default = 256;
+qam_order_default = 16;
 N_default = 1024;
-L_default = 120;
+L_default = 320;
 load('h_channel.mat')
 %%
 close all;
@@ -21,7 +21,7 @@ Tx = ofdm_mod(qam_stream,N,L,qam_trainblock,trainbins);
 
 % Rx = fftfilt(h,Tx);
 % Rx = awgn(Rx, SNR, 'measured');
-[simin,nbsecs,fs,pulse]=initparams(Tx,fs);
+[simin,nbsecs,fs,pulse]=initparams(Tx,fs,L);
 sim('recplay');
 out = simout.signals.values;
 [Rx,~] = alignIO(out,pulse);
