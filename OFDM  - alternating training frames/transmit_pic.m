@@ -80,14 +80,7 @@ out = simout.signals.values;
 [rxOfdmStream,~] = alignIO(out,pulse);
 [rxQamStream, H] = ofdm_demod(rxOfdmStream, N, L, qam_trainblock, Lt, Ld);
 
-psd_in = pwelch(ofdmStream, N, [], N, fs);
-psd_out = pwelch(rxOfdmStream, N, [], N, fs);
-psd_noise = abs(psd_out(2:512) - psd_in(2:512) .* abs(H(:,1)).^2);% JUIST??
-figure; subplot(2,2,1); plot(psd_in); subplot(2,2,2); plot(psd_out); subplot(2,2,3); plot(abs(H).^2); subplot(2,2,4); plot(psd_noise);
-
-criterium = psd_in(2:512)./ psd_noise;
-
-[~,usedbins] = sort(criterium, 'descend');
+[~,usedbins] = sort(abs(H), 'descend');
 usedbins = usedbins(1:floor(BWusage*(N/2-1)));
 
 % Convert; BMP image to bitstream
@@ -134,23 +127,23 @@ Ld = 5;
 % Probe channel
 trainblock = randi([0,1],(N/2-1)*log2(M),1);
 qam_trainblock = qam_mod(trainblock,M);
-num = floor(fs/N/1.5);
+num = floor(fs/N/1);
 ofdmStream = ofdm_mod(qam_trainblock, N, L, qam_trainblock, num, 1);
-[simin,nbsecs,fs,pulse]=initparams(ofdmStream,fs, L,1);
+[simin,nbsecs,fs,pulse]=initparams(ofdmStream,fs, L,0.1);
 sim('recplay');
 out = simout.signals.values;
 [rxOfdmStream,~] = alignIO(out,pulse);
-[rxQamStream, H] = ofdm_demod(rxOfdmStream, N, L, qam_trainblock, Lt, Ld);
+[rxQamStream, H] = ofdm_demod(rxOfdmStream, N, L, qam_trainblock, num, 1);
 
-psd_in = pwelch(ofdmStream, N, [], N);
-psd_out = pwelch(rxOfdmStream, N, [], N);
-psd_noise = abs(psd_out(2:512) - psd_in(2:512) .* abs(H(:,1)).^2);
-figure; subplot(2,2,1); plot(psd_in); subplot(2,2,2); plot(psd_out); subplot(2,2,3); plot(abs(H)); subplot(2,2,4); plot(psd_noise);
+psd_in = powerEst(ofdmStream, N);
+psd_out = powerEst(rxOfdmStream, N);
+psd_noise = abs(psd_out - psd_in .* abs(H(:,1)).^2);
+figure; subplot(2,2,1); plot(psd_in); subplot(2,2,2); plot(psd_out); subplot(2,2,3); plot(abs(H(:,1))); subplot(2,2,4); plot(psd_noise);
 
 b = floor(log2(1+(abs(H(:,1)).^2) ./ (gamma*psd_noise)));
 b(b>6) = 6;
 figure; plot(b);
-%%
+
 % Convert; BMP image to bitstream
 [bitStream, imageData, colorMap, imageSize, bitsPerPixel] = imagetobitstream('image.bmp');
 
@@ -159,7 +152,6 @@ qamStream = qam_mod(bitStream, b);
 
 % OFDM modulation
 ofdmStream = ofdm_mod(qamStream, N, L, qam_trainblock, Lt, Ld);
-ofdmStream = ofdmStream(1:111800);
 
 % Channel
 [simin,nbsecs,fs,pulse]=initparams(ofdmStream,fs, L);
@@ -181,4 +173,4 @@ imageRx = bitstreamtoimage(rxBitStream, imageSize, bitsPerPixel);
 
 % Plot images
 figure(pics);
-subplot(2,2,3); colormap(colorMap); image(imageRx); axis image; title(strcat('On-Off bit loading -- ',num2str(berTransmission))); drawnow;
+subplot(2,2,4); colormap(colorMap); image(imageRx); axis image; title(strcat('On-Off bit loading -- ',num2str(berTransmission))); drawnow;

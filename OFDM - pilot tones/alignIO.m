@@ -1,12 +1,12 @@
-function [out_aligned, sample_number] = alignIO(out,pulseOrThreshold)
+function [out_aligned, sample_number] = alignIO(out,pulseOrThreshold, safetyMargin)
 
 % align the input "out" using a pulse or a threshold value. The function return the "out" signal with the pulse cut off. ~
 % if the input pulseOrThreshold is a vector, it uses the crosscorrelation
 % between out and pulseOrThreshold to return out_aligned.
 % if input pulseOrThreshold is a 
-
-    safetyMargin = 20; %safetymargin as to not cut of any data.
-    
+    if nargin < 3
+        safetyMargin = 45; %safetymargin as to not cut of any data.
+    end
 if length(pulseOrThreshold) > 1
     
     [xcor, lags] = xcorr(out,pulseOrThreshold);

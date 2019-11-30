@@ -17,9 +17,9 @@ function [ofdm_seq] = ofdm_mod(qamsig,N,L,trainblock,trainbins)
         % reshape to long sequence
         ofdm_seq = reshape(ofdm_seq, [(N+L)*P 1]);
     else
-        if (length(trainblock) ~= length(trainbins))
-            error('Number of train symbols should be equal to number of trainbins');
-        end
+%         if (length(trainblock) ~= length(trainbins))
+%             error('Number of train symbols should be equal to number of trainbins');
+%         end
         
         % Pad qamsig to multiple of used data bins
         num_bins = N/2-1 - length(trainbins);

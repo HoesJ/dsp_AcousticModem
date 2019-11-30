@@ -1,4 +1,8 @@
 function [qamsig,H] = ofdm_demod(ofdm_seq,N,L,trainblock,trainbins)
+    if nargin < 5
+        trainbins = 1:(N/2-1);
+    end
+    
     % Padd  signal
     ofdm_seq = [ofdm_seq;zeros(ceil(length(ofdm_seq) / (N+L)) * (N+L) - length(ofdm_seq),1)];
 
@@ -18,7 +22,8 @@ function [qamsig,H] = ofdm_demod(ofdm_seq,N,L,trainblock,trainbins)
     H = zeros(N/2-1,size(qamsig,2));
     for j = 1:size(qamsig,2)
         H(trainbins,j) = qamsig(trainbins,j) ./ trainblock;
-        h = ifft([0;H(:,j);0;conj(H(:,j))]);
+        h = ifft([0;H(:,j);0;flip(conj(H(:,j)))]);
+%         plot(abs(h));
         h(L+1:end) = 0;
         tmp = fft(h);
         H(:,j) = 2*tmp(2:512); %% *2 omdat we vermogen hebben weggeknipt en de schaal moet terug gaan
