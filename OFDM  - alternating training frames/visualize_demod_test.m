@@ -1,13 +1,13 @@
 N = 1024;
 Ld = 2;
-refreshRate = 0.2;
-qam_order_default = 64;
+refreshRate = 0.02;
+qam_order_default = 16;
 
 rxBitStream = qam_demod(rxQamStream,qam_order_default);
 
 [bitstream, imageData, colorMap, imageSize, bitsPerPixel] = imagetobitstream('image.bmp');
 
-visualize_demod(rxQamStream, H, refreshRate, Ld, N, qam_order_default);
+visualize_demod(rxBitStream, H, refreshRate, Ld, N, qam_order_default);
 
 %%
 % sizeH = size(H);

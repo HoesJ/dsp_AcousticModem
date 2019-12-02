@@ -46,6 +46,9 @@ imageRx = bitstreamtoimage(rxBitStream, imageSize, bitsPerPixel);
 pics = figure;
 subplot(2,2,1); colormap(colorMap); image(imageData); axis image; title('Original image'); drawnow;
 subplot(2,2,2); colormap(colorMap); image(imageRx); axis image; title(strcat('Simple transmission -- ',num2str(berTransmission))); drawnow;
+
+refreshRate = (N/2-1) * Ld / fs; % (samples / channel estimate) / (samples / s) = s / channel estimate
+visualize_demod(rxBitStream, H, refreshRate, Ld, N, M)
 %% BER per bin
 % res = zeros(N,1);
 % M = log2(qam_order);
@@ -117,6 +120,9 @@ imageRx = bitstreamtoimage(rxBitStream, imageSize, bitsPerPixel);
 % Plot images
 figure(pics);
 subplot(2,2,3); colormap(colorMap); image(imageRx); axis image; title(strcat('On-Off bit loading -- ',num2str(berTransmission))); drawnow;
+
+refreshRate = length(usedbins) * Ld / fs; % (samples / channel estimate) / (samples / s) = s / channel estimate
+visualize_demod(rxBitStream, H, refreshRate, Ld, 2*length(usedbins)+2, M)
 %% Adaptive bit loading
 M = M_default;
 N = N_default;
@@ -174,3 +180,7 @@ imageRx = bitstreamtoimage(rxBitStream, imageSize, bitsPerPixel);
 % Plot images
 figure(pics);
 subplot(2,2,4); colormap(colorMap); image(imageRx); axis image; title(strcat('On-Off bit loading -- ',num2str(berTransmission))); drawnow;
+
+refreshRate = (N/2-1) * Ld / fs; % (samples / channel estimate) / (samples / s) = s / channel estimate
+pixPerPacket = Ld * sum(b);
+visualize_demod(rxBitStream, H, refreshRate, Ld, N, M, pixPerPacket);

@@ -7,8 +7,6 @@ safetyMargin = 45;
 M = M_default;
 N = N_default;
 L = L_default;
-Lt = 3;
-Ld = 5;
 trainbins = 1:2:511;
 
 % Convert; BMP image to bitstream
@@ -46,6 +44,10 @@ imageRx = bitstreamtoimage(rxBitStream, imageSize, bitsPerPixel);
 pics = figure;
 subplot(2,1,1); colormap(colorMap); image(imageData); axis image; title('Original image'); drawnow;
 subplot(2,1,2); colormap(colorMap); image(imageRx); axis image; title(strcat('Simple transmission -- ',num2str(berTransmission))); drawnow;
+
+refreshRate = (N/2-1) / fs; % (samples / channel estimate) / (samples / s) = s / channel estimate
+pixPerPacket = (N/2 - 1) / 2;
+visualize_demod(rxBitStream, H, refreshRate, Ld, N, M, pixPerPacket);
 
 %% Pilot with adaptive bit loading
 M = M_default;
@@ -99,7 +101,7 @@ ofdmStream = ofdm_mod(qamStream,N,L,qam_trainblock,trainbins);
 sim('recplay');
 out = simout.signals.values;
 [rxOfdmStream,~] = alignIO(out,pulse, safetyMargin);
-%%
+
 % OFDM demodulation
 [rxQamStream, H] = ofdm_demod(rxOfdmStream,N,L,qam_trainblock, trainbins);
 rxQamStream = rxQamStream(~isnan(rxQamStream));
