@@ -9,6 +9,9 @@ rxBitStream = qam_demod(rxQamStream,qam_order_default);
 
 visualize_demod(rxBitStream, H, refreshRate, Ld, N, qam_order_default);
 
+figure;
+w = waitforbuttonpress;
+axes;
 %%
 % sizeH = size(H);
 % for i = 1:sizeH(2)
