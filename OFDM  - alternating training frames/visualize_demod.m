@@ -1,11 +1,12 @@
 function visualize_demod(qamSig, H, refreshRate, Ld, N, qamOrder)
     
     
-    [~, imageData, colorMap, imageSize, bitsPerPixel] = imagetobitstream('image.bmp');
+    [originalBitStream, imageData, colorMap, imageSize, bitsPerPixel] = imagetobitstream('image.bmp');
     rxBitStream = qam_demod(qamSig,qamOrder);
 %     Ld*(N/2-1)*log1;
+    sizeOriginal =size(originalBitStream);
     sizeRx =size(rxBitStream);
-    zerostream = zeros(1, sizeRx(2));
+    zerostream = zeros(1, sizeOriginal(2));
     sizeH = size(H);
     
     for i = 1:sizeH(2)
@@ -13,8 +14,8 @@ function visualize_demod(qamSig, H, refreshRate, Ld, N, qamOrder)
         subplot(2,2,1); plot(abs(ifft(H(:,i))));
         subplot(2,2,2); colormap(colorMap); image(imageData); axis image; title('Original image'); drawnow;
         subplot(2,2,3); plot(abs(H(:,i)));
-        
-        subplot(2,2,4); plot(bitstreamtoimage(zerostream + rxBitStream(1:i*Ld*(N/2-1)), imageSize, bitsPerPixel));
+        rximage = bitstreamtoimage(rxBitStream(1:i*Ld*(N/2-1)), imageSize, bitsPerPixel);
+        subplot(2,2,4); image(rximage);
        
         pause(refreshRate);
     end
