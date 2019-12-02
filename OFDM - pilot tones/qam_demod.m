@@ -2,6 +2,7 @@ function [demodSig] = qam_demod(qamSig,order)
     if (length(order) == 1)
         demodSig = qamdemod(qamSig,order,'outputtype','bit','UnitAveragePower',true);
     else
+        qamSig = [qamSig;zeros(ceil(length(qamSig) / length(order)) * length(order) - length(qamSig),1)];
         qamSig = transpose(reshape(qamSig, [length(order) length(qamSig)/length(order)]));
         demodSig = zeros(size(qamSig,1), sum(order));
         for i = 1:length(order)

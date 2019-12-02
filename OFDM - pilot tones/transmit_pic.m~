@@ -58,27 +58,23 @@ trainbins = 1:2:511;
 % Probe channel
 trainblock = randi([0,1],(N/2-1)*log2(M),1);
 qam_trainblock = qam_mod(trainblock,M);
-num = floor(1*fs/N);
+num = floor(2*fs/N);
 ofdmStream = ofdm_mod(repmat(qam_trainblock, num, 1), N, L);
-ofdmStream = [ofdmStream;zeros(fs,1)];
-
 [simin,nbsecs,fs,pulse]=initparams(ofdmStream,fs,L);
 sim('recplay');
 out = simout.signals.values;
 [rxOfdmStream,~] = alignIO(out,pulse);
 [rxQamStream, H] = ofdm_demod(rxOfdmStream, N, L, qam_trainblock);
 H = mean(H,2);
-psd_noise = powerEst(rxOfdmStream((end-1.5*fs):end), N);
-figure; subplot(2,1,1); plot(abs(H)); subplot(2,1,2); plot(psd_noise);
-% psd_in = powerEst(ofdmStream, N);
-% psd_out = powerEst(rxOfdmStream, N);
-% psd_noise = abs(psd_out - psd_in .* abs(H(:,1)).^2);
-% figure; subplot(2,2,1); plot(psd_in); subplot(2,2,2); plot(psd_out); subplot(2,2,3); plot(abs(H(:,1))); subplot(2,2,4); plot(psd_noise);
+psd_in = powerEst(ofdmStream, N);
+psd_out = powerEst(rxOfdmStream, N);
+psd_noise = abs(psd_out - psd_in .* abs(H(:,1)).^2);
+figure; subplot(2,2,1); plot(psd_in); subplot(2,2,2); plot(psd_out); subplot(2,2,3); plot(abs(H(:,1))); subplot(2,2,4); plot(psd_noise);
 
 b = floor(log2(1+(abs(H(:,1)).^2) ./ (gamma*psd_noise)));
 b(b>6) = 6;
 figure; plot(b);
-
+%%
 % Convert; BMP image to bitstream
 [bitStream, imageData, colorMap, imageSize, bitsPerPixel] = imagetobitstream('image.bmp');
 
@@ -86,7 +82,6 @@ figure; plot(b);
 trainblock = randi([0,1],sum(b),1);
 qam_trainblock = qam_mod(trainblock,b);
 qam_trainblock = qam_trainblock(trainbins);
-qam_trainblock(qam_trainblock == 0) = 1; % Otherwise gives problem with trainblock values of 0
 
 % QAM modulation
 qamStream = qam_mod(bitStream, b);
@@ -99,10 +94,9 @@ ofdmStream = ofdm_mod(qamStream,N,L,qam_trainblock,trainbins);
 sim('recplay');
 out = simout.signals.values;
 [rxOfdmStream,~] = alignIO(out,pulse, safetyMargin);
-%%
+
 % OFDM demodulation
 [rxQamStream, H] = ofdm_demod(rxOfdmStream,N,L,qam_trainblock, trainbins);
-rxQamStream = rxQamStream(~isnan(rxQamStream));
 
 % QAM demodulation
 rxBitStream = qam_demod(rxQamStream, b);
