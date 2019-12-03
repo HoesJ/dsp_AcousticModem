@@ -57,7 +57,7 @@ N = N_default;
 L = L_default;
 Lt = 3;
 Ld = 5;
-BWusage = 0.7;
+BWusage = 0.5;
 
 % Probe channel
 trainblock = randi([0,1],(N/2-1)*log2(M),1);

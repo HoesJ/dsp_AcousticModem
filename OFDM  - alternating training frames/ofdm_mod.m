@@ -7,6 +7,8 @@ function [ofdm_seq] = ofdm_mod(qamsig,N,L,trainblock,Lt,Ld,usedbins)
         % Pad qamsig to multiple of lastBin*Ld (N/2-1)
         mult = num_bins * Ld;
         qamsig = [qamsig;zeros(ceil(length(qamsig) / mult) * mult - length(qamsig),1)];
+%         last = qamsig(length(qamsig));
+%         qamsig = [qamsig;repmat(last, ceil(length(qamsig) / mult) * mult - length(qamsig),1)];
 
         % Define P
         P = length(qamsig) / num_bins;
@@ -14,7 +16,7 @@ function [ofdm_seq] = ofdm_mod(qamsig,N,L,trainblock,Lt,Ld,usedbins)
         % N is the frame size
         dataframe = zeros(N/2-1, P);
         dataframe(usedbins,:) = reshape(qamsig, [num_bins,P]);
-        dataframe = [zeros(1,P);dataframe;zeros(1,P);conj(flip(dataframe))];
+        dataframe = [zeros(1,P);dataframe;zeros(1,P);conj(flipud(dataframe))];
         ofdm_data = ifft(dataframe);
         
         % Training frames
