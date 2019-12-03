@@ -1,5 +1,5 @@
-function [qamsig,H] = ofdm_demod(ofdm_seq,N,L,trainblock,Lt,mu,alpha,usedbins)
-    if (nargin < 8)
+function [qamsig,H] = ofdm_demod(ofdm_seq,N,L,trainblock,Lt,mu,alpha,qam_order,usedbins)
+    if (nargin < 9)
        usedbins = 1:(N/2-1); 
     end
 
@@ -26,17 +26,12 @@ function [qamsig,H] = ofdm_demod(ofdm_seq,N,L,trainblock,Lt,mu,alpha,usedbins)
         b = repmat(trainblock(j), size(A,1),1);
         H(j) = b\A;
     end
-    
-    [W, filteredOutput] = adaptive_channel_filter(qamsig(:,Lt+1:end),D,conj(1./H), mu, alpha)
+    % Adaptive filtering
+    [W, filteredOutput] = adaptive_channel_filter(qamsig(:,Lt+1:end),D,conj(1./H),mu,alpha,qam_order);
+    H = [H,1./conj(W)];
 
-    % Channel equalisation and data extraction
-    datasig = zeros(N/2-1,num_processing_blocks*Ld);
-    for i = 1:num_processing_blocks
-        extractrange = ((i-1)*(Lt+Ld)+Lt+1):((i-1)*(Lt+Ld)+Lt+Ld);
-        storerange = ((i-1)*Ld+1):(i*Ld);
-        datasig(:,storerange) = diag(H(:,i))\qamsig(:,extractrange);
-    end
-    datasig = datasig(usedbins,:);
+    % data extraction
+    datasig = filteredOutput(usedbins,:);
     
     % reshape to a line
     qamsig = datasig(:);    
