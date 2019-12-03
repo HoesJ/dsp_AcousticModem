@@ -1,10 +1,10 @@
-function [qamsig,H] = ofdm_demod(ofdm_seq,N,L,trainblock,Lt,Ld,usedbins)
-    if (nargin < 7)
+function [qamsig,H] = ofdm_demod(ofdm_seq,N,L,trainblock,Lt,mu,alpha,usedbins)
+    if (nargin < 8)
        usedbins = 1:(N/2-1); 
     end
 
     % Padd  signal to buckets
-    mult = (N+L) * (Ld+Lt);
+    mult = (N+L);
     ofdm_seq = [ofdm_seq;zeros(ceil(length(ofdm_seq) / mult) * mult - length(ofdm_seq),1)];
 
     % reshape ofdm_sig
@@ -19,17 +19,15 @@ function [qamsig,H] = ofdm_demod(ofdm_seq,N,L,trainblock,Lt,Ld,usedbins)
     % throw away copies
     qamsig = qamsig(2:N/2,:);
     
-    % Channel estimation
-    num_processing_blocks = size(qamsig,2)/(Lt+Ld);
-    H = zeros(N/2-1, num_processing_blocks);
-    for i = 1:num_processing_blocks
-        for j = 1:length(trainblock)
-            A = transpose(qamsig(j,((i-1)*(Lt+Ld)+1):((i-1)*(Lt+Ld)+Lt) ));
-            b = repmat(trainblock(j), size(A,1),1);
-            H(j,i) = b\A;
-        end
-        disp(i);
+    % Initial Channel estimation
+    H = zeros(N/2-1,1);
+    for j = 1:length(trainblock)
+        A = transpose(qamsig(j,1:Lt));
+        b = repmat(trainblock(j), size(A,1),1);
+        H(j) = b\A;
     end
+    
+    [W, filteredOutput] = adaptive_channel_filter(qamsig(:,Lt+1:end),D,conj(1./H), mu, alpha)
 
     % Channel equalisation and data extraction
     datasig = zeros(N/2-1,num_processing_blocks*Ld);
