@@ -23,7 +23,7 @@ function [ofdm_seq] = ofdm_mod(qamsig,N,L,trainblock,Lt,usedbins)
 
         %sending training packet zith Lt training frames
         training_packet = repmat(ofdm_training,1,Lt);
-        ofdm_packet = [training_packet; ofdm_data];
+        ofdm_packet = [training_packet, ofdm_data];
         
         % add cyclic prefix
         ofdm_seq = [ofdm_packet(N-L+1:N,:);ofdm_packet];
