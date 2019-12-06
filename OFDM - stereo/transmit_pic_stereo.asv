@@ -10,17 +10,16 @@ h2 = ifft(H(:,30));
 H1 = H(:,10);
 H2 = H(:,20);
 
-% figure
-% subplot(2,1,1); plot(abs(h1));
-% subplot(2,1,2); plot(abs(h2));
-
-[a,b,H1and2] = fixed_transmitter_side_beamformer(h1,h2);
+[a,b,H12] = fixed_transmitter_side_beamformer(h1,h2);
+% h12 = ifft(H12);
+% h12cut = h12(1:round(length(h12)/2),1);
+% H12cut = fft(h12cut, 511);
 
 %%
 figure
 subplot(3,2,1); plot(abs(fft(h1)));ylim([0 0.1])
 subplot(3,2,3); plot(abs(fft(h2)));ylim([0 0.1])
-subplot(3,2,5); plot(H12);ylim([0 0.1])
+subplot(3,2,5); plot(abs(H12));ylim([0 0.1])
 subplot(3,2,2); plot(abs(h1));
 subplot(3,2,4); plot(abs(h2));
 subplot(3,2,6); plot(abs(ifft(H12)));
@@ -44,19 +43,12 @@ qamStream = qam_mod(bitStream, M);
 % OFDM modulation
 [ofdmStream1,ofdmStream2] = ofdm_mod_stereo(qamStream,qamStream, N, L, qam_trainblock, Lt,a,b);
 
-%% simulate transmission and demodulation
-
 rxOfdmStream = fftfilt(h1,ofdmStream1)+fftfilt(h2,ofdmStream1);
 
-% % transmit
-% [simin,nbsecs,fs,pulse]=initparams(ofdmStream,fs, L);
-% sim('recplay');
-% out = simout.signals.values;
-% [rxOfdmStream,~] = alignIO(out,pulse);
-
+%%
 % OFDM demodulation
-[qamsig] = ofdm_demod(ofdm_seq,N,L,h,lastBin)
 
+[rxQamStream, H] = ofdm_demod_stereo(rxOfdmStream,N,L,trainblock,Lt,mu,alpha,qam_order,usedbins)
 % QAM demodulation
 rxBitStream = qam_demod(rxQamStream, M);
 
@@ -71,5 +63,24 @@ pics = figure;
 subplot(2,2,1); colormap(colorMap); image(imageData); axis image; title('Original image'); drawnow;
 subplot(2,2,2); colormap(colorMap); image(imageRx); axis image; title(strcat('Simple transmission -- ',num2str(berTransmission))); drawnow;
 
-refreshRate = (N/2-1) * Ld / fs; % (samples / channel estimate) / (samples / s) = s / channel estimate
+% refreshRate = (N/2-1) * Ld / fs; % (samples / channel estimate) / (samples / s) = s / channel 
+refreshRate = 1;
 visualize_demod(rxBitStream, H, refreshRate, Ld, N, M);
+
+% % transmit
+% [simin,nbsecs,fs,pulse]=initparams_stereo(ofdmStream,fs, L);
+% sim('recplay');
+% out = simout.signals.values;
+% [rxOfdmStream,~] = alignIO(out,pulse);
+% 
+% % OFDM demodulation
+% mu = 0.3;
+% alphaOverride = 0;
+% if (alphaOverride == 0)
+%     alpha = 10^(floor(log10(rxOfdmStream(length(rxOfdmStream)/3)) * 2 - 1));
+% else
+%     alpha = alphaOverride;
+% end
+% h1and2 = ifft(H1and2);
+% [rxQamStream,H] = ofdm_demod(rxOfdmStream,N,L,trainblock,Lt,mu,alpha,M);
+

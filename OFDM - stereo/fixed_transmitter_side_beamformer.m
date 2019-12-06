@@ -12,6 +12,9 @@ function [a,b, H1and2] = fixed_transmitter_side_beamformer(h1,h2)
     end
     
     H1and2 = sqrt(H1.*conj(H1)+H2.*conj(H2));
+    h1and2 = ifft(H1and2);
+    h1and2 = h1and2(1:round(length(h1and2)/2),1);
+    H1and2 = 2*fft(h1and2, length(H1and2));
 end
 
 %%code that did not do the job

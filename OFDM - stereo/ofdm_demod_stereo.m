@@ -1,4 +1,4 @@
-function [qamsig,H] = ofdm_demod(ofdm_seq,N,L,trainblock,Lt,mu,alpha,qam_order,usedbins)
+function [qamsig,H] = ofdm_demod_stereo(ofdm_seq,N,L,trainblock,Lt,mu,alpha,qam_order,usedbins)
     if (nargin < 9)
        usedbins = 1:(N/2-1); 
     end
@@ -27,10 +27,12 @@ function [qamsig,H] = ofdm_demod(ofdm_seq,N,L,trainblock,Lt,mu,alpha,qam_order,u
         H(j) = b\A;
     end
     % Adaptive filtering
-    [W, filteredOutput] = adaptive_channel_filter(qamsig(:,Lt+1:end),D,conj(1./H),mu,alpha,qam_order);
-    H = [H,1./conj(W)];
+%     [W, filteredOutput] = adaptive_channel_filter(qamsig(:,Lt+1:end),D,conj(1./H),mu,alpha,qam_order);
+%     [W, filteredOutput] = adaptive_channel_filter(qamsig(:,Lt+1:end),conj(1./H),mu,alpha,qam_order);
+%     H = [H,1./conj(W)];
 
     % data extraction
+%     datasig = filteredOutput(usedbins,:);
     datasig = filteredOutput(usedbins,:);
     
     % reshape to a line

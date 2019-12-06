@@ -1,4 +1,4 @@
-function [qamsig] = ofdm_demod(ofdm_seq,N,L,h,lastBin)
+function [qamsig] = ofdm_demod_fixed_channel(ofdm_seq,N,L,h,lastBin)
     if nargin < 5
         lastBin = N/2-1;
     end
