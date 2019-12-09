@@ -5,12 +5,19 @@ L_default = 320;
 gamma = 10;
 
 %%
-h1 = ifft(H(:,20));
-h2 = ifft(H(:,30));
-H1 = H(:,10);
-H2 = H(:,20);
+N = N_default;
+load('H_2_2.mat');
+h1 = ifft([0;H(:,20);0;conj(flip(H(:,20)))]);
+h2 = ifft([0;H(:,30);0;conj(flip(H(:,30)))]);
+h1 = h1(1:300);
+h2 = h2(1:300);
+H1 = fft(h1,N);
+H2 = fft(h2,N);
+H1 = H1(2:512);
+H2 = H2(2:512);
 
-[a,b,H12] = fixed_transmitter_side_beamformer(h1,h2);
+
+[a,b,H12] = fixed_transmitter_side_beamformer(h1,h2,N);
 % h12 = ifft(H12);
 % h12cut = h12(1:round(length(h12)/2),1);
 % H12cut = fft(h12cut, 511);
@@ -43,18 +50,18 @@ qamStream = qam_mod(bitStream, M);
 % OFDM modulation
 [ofdmStream1,ofdmStream2] = ofdm_mod_stereo(qamStream,qamStream, N, L, qam_trainblock, Lt,a,b);
 
-rxOfdmStream = fftfilt(h1,ofdmStream1)+fftfilt(h2,ofdmStream2);
+rxOfdmStream = (fftfilt(h1,ofdmStream1)+fftfilt(h2,ofdmStream2));
 
-%% OFDM demodulation
-mu = 0.3;
-alphaOverride = 0;
+% OFDM demodulation
+mu = 0.1;
+alphaOverride = 1e-8;
 if (alphaOverride == 0)
     alpha = 10^(floor(log10(rxOfdmStream(length(rxOfdmStream)/3)) * 2 - 1));
 else
     alpha = alphaOverride;
 end
 
-[rxQamStream, H] = ofdm_demod_stereo(rxOfdmStream,N,L,qam_trainblock,Lt,mu,alpha,M);
+[rxQamStream, H] = ofdm_demod_stereo(rxOfdmStream,N,L,qam_trainblock,Lt,a,b,mu,alpha,M);
 
 % QAM demodulation
 rxBitStream = qam_demod(rxQamStream, M);
@@ -70,6 +77,8 @@ pics = figure;
 subplot(2,2,1); colormap(colorMap); image(imageData); axis image; title('Original image'); drawnow;
 subplot(2,2,2); colormap(colorMap); image(imageRx); axis image; title(strcat('Simple transmission -- ',num2str(berTransmission))); drawnow;
 
+figure
+plot(abs(H)); hold on; plot(abs(H12));
 %%
 % refreshRate = (N/2-1) * Ld / fs; % (samples / channel estimate) / (samples / s) = s / channel 
 refreshRate = 1;

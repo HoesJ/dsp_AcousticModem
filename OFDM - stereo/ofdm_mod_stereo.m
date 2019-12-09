@@ -20,12 +20,13 @@ function [ofdm_seq1, ofdm_seq2] = ofdm_mod_stereo(qamsig1, qamsig2,N,L,trainbloc
         ofdm_data1 = ifft(dataframe1);
         
         % Training frames
-        trainingframe = [0;trainblock;0;conj(flip(trainblock))];
-        ofdm_training = ifft(trainingframe);
+        trainblock1 = a.*trainblock;
+        trainingframe1 = [0;trainblock1;0;conj(flip(trainblock1))];
+        ofdm_training1 = ifft(trainingframe1);
 
         %sending training packet zith Lt training frames
-        training_packet = repmat(ofdm_training,1,Lt);
-        ofdm_packet1 = [training_packet, ofdm_data1];
+        training_packet1 = repmat(ofdm_training1,1,Lt);
+        ofdm_packet1 = [training_packet1, ofdm_data1];
         
         % add cyclic prefix
         ofdm_seq1 = [ofdm_packet1(N-L+1:N,:);ofdm_packet1];
@@ -47,9 +48,14 @@ function [ofdm_seq1, ofdm_seq2] = ofdm_mod_stereo(qamsig1, qamsig2,N,L,trainbloc
         dataframe2 = b.*dataframe2;
         dataframe2 = [zeros(1,P2);dataframe2;zeros(1,P2);conj(flip(dataframe2))];
         ofdm_data2 = ifft(dataframe2);
+        
+        % Training frames
+        trainblock2 = b.*trainblock;
+        trainingframe2 = [0;trainblock2;0;conj(flip(trainblock2))];
+        ofdm_training2 = ifft(trainingframe2);
 
         %sending training packet zith Lt training frames
-        training_packet = repmat(ofdm_training,1,Lt);
+        training_packet = repmat(ofdm_training2,1,Lt);
         ofdm_packet2 = [training_packet, ofdm_data2];
         
         % add cyclic prefix
