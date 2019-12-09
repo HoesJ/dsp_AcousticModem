@@ -5,7 +5,6 @@ L_default = 320;
 gamma = 10;
 
 %%
-N = N_default;
 load('H_2_2.mat');
 h1 = ifft([0;H(:,20);0;conj(flip(H(:,20)))]);
 h2 = ifft([0;H(:,30);0;conj(flip(H(:,30)))]);
@@ -17,7 +16,7 @@ H1 = H1(2:512);
 H2 = H2(2:512);
 
 
-[a,b,H12] = fixed_transmitter_side_beamformer(h1,h2,N);
+[a,b,H12] = fixed_transmitter_side_beamformer(H1,H2);
 % h12 = ifft(H12);
 % h12cut = h12(1:round(length(h12)/2),1);
 % H12cut = fft(h12cut, 511);
@@ -51,6 +50,7 @@ qamStream = qam_mod(bitStream, M);
 [ofdmStream1,ofdmStream2] = ofdm_mod_stereo(qamStream,qamStream, N, L, qam_trainblock, Lt,a,b);
 
 rxOfdmStream = (fftfilt(h1,ofdmStream1)+fftfilt(h2,ofdmStream2));
+rxOfdmStream = awgn(rxOfdmStream, 25, 'measured');
 
 % OFDM demodulation
 mu = 0.5;
@@ -75,29 +75,96 @@ imageRx = bitstreamtoimage(rxBitStream, imageSize, bitsPerPixel);
 % Plot images
 pics = figure;
 subplot(2,2,1); colormap(colorMap); image(imageData); axis image; title('Original image'); drawnow;
-subplot(2,2,2); colormap(colorMap); image(imageRx); axis image; title(strcat('Simple transmission -- ',num2str(berTransmission))); drawnow;
+subplot(2,2,2); colormap(colorMap); image(imageRx); axis image; title(strcat('Both Channels -- ',num2str(berTransmission))); drawnow;
+%% Channel 1 with noise
+M = M_default;
+N = N_default;
+L = L_default;
+Lt = 3;
 
-figure
-plot(H); hold on; plot(H12);
-%%
-% refreshRate = (N/2-1) * Ld / fs; % (samples / channel estimate) / (samples / s) = s / channel 
-refreshRate = 1;
-visualize_demod(rxBitStream, H, refreshRate, Ld, N, M);
+a = 1; b = 0;
+% Convert; BMP image to bitstream
+[bitStream, imageData, colorMap, imageSize, bitsPerPixel] = imagetobitstream('image.bmp');
 
-% % transmit
-% [simin,nbsecs,fs,pulse]=initparams_stereo(ofdmStream,fs, L);
-% sim('recplay');
-% out = simout.signals.values;
-% [rxOfdmStream,~] = alignIO(out,pulse);
-% 
-% % OFDM demodulation
-% mu = 0.3;
-% alphaOverride = 0;
-% if (alphaOverride == 0)
-%     alpha = 10^(floor(log10(rxOfdmStream(length(rxOfdmStream)/3)) * 2 - 1));
-% else
-%     alpha = alphaOverride;
-% end
-% h1and2 = ifft(H1and2);
-% [rxQamStream,H] = ofdm_demod(rxOfdmStream,N,L,trainblock,Lt,mu,alpha,M);
+%training block generation
+trainblock = randi([0,1],(N/2-1)*log2(M),1);
+qam_trainblock = qam_mod(trainblock,M);
 
+% QAM modulation
+qamStream = qam_mod(bitStream, M);
+
+% OFDM modulation
+[ofdmStream1,ofdmStream2] = ofdm_mod_stereo(qamStream,qamStream, N, L, qam_trainblock, Lt,a,b);
+
+rxOfdmStream = (fftfilt(h1,ofdmStream1)+fftfilt(h2,ofdmStream2));
+rxOfdmStream = awgn(rxOfdmStream, 25, 'measured');
+
+% OFDM demodulation
+mu = 0.5;
+alphaOverride = 0;
+if (alphaOverride == 0)
+    alpha = 10^(floor(log10(rxOfdmStream(length(rxOfdmStream)/3)) * 2 - 1));
+else
+    alpha = alphaOverride;
+end
+
+[rxQamStream, H] = ofdm_demod_stereo(rxOfdmStream,N,L,qam_trainblock,Lt,mu,alpha,M);
+
+% QAM demodulation
+rxBitStream = qam_demod(rxQamStream, M);
+
+% Compute BER
+[~,berTransmission] = ber(bitStream,rxBitStream);
+
+% Construct image from bitstream
+imageRx = bitstreamtoimage(rxBitStream, imageSize, bitsPerPixel);
+
+% Plot images
+figure(pics);
+subplot(2,2,3); colormap(colorMap); image(imageRx); axis image; title(strcat('CH1 -- ',num2str(berTransmission))); drawnow;
+%% Channel 2 with noise
+M = M_default;
+N = N_default;
+L = L_default;
+Lt = 3;
+
+a = 0; b = 1;
+% Convert; BMP image to bitstream
+[bitStream, imageData, colorMap, imageSize, bitsPerPixel] = imagetobitstream('image.bmp');
+
+%training block generation
+trainblock = randi([0,1],(N/2-1)*log2(M),1);
+qam_trainblock = qam_mod(trainblock,M);
+
+% QAM modulation
+qamStream = qam_mod(bitStream, M);
+
+% OFDM modulation
+[ofdmStream1,ofdmStream2] = ofdm_mod_stereo(qamStream,qamStream, N, L, qam_trainblock, Lt,a,b);
+
+rxOfdmStream = (fftfilt(h1,ofdmStream1)+fftfilt(h2,ofdmStream2));
+rxOfdmStream = awgn(rxOfdmStream, 25, 'measured');
+
+% OFDM demodulation
+mu = 0.5;
+alphaOverride = 0;
+if (alphaOverride == 0)
+    alpha = 10^(floor(log10(rxOfdmStream(length(rxOfdmStream)/3)) * 2 - 1));
+else
+    alpha = alphaOverride;
+end
+
+[rxQamStream, H] = ofdm_demod_stereo(rxOfdmStream,N,L,qam_trainblock,Lt,mu,alpha,M);
+
+% QAM demodulation
+rxBitStream = qam_demod(rxQamStream, M);
+
+% Compute BER
+[~,berTransmission] = ber(bitStream,rxBitStream);
+
+% Construct image from bitstream
+imageRx = bitstreamtoimage(rxBitStream, imageSize, bitsPerPixel);
+
+% Plot images
+figure(pics);
+subplot(2,2,4); colormap(colorMap); image(imageRx); axis image; title(strcat('CH2 -- ',num2str(berTransmission))); drawnow;
