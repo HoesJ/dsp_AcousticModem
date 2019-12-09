@@ -33,6 +33,7 @@ out = simout.signals.values;
 [rxQamStream, H] = ofdm_demod(rxOfdmStream,N,L,qam_trainblock, trainbins);
 
 % QAM demodulation
+rxQamStream = rxQamStream(~isnan(rxQamStream));
 rxBitStream = qam_demod(rxQamStream, M);
 
 % Compute BER

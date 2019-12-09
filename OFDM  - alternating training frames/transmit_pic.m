@@ -106,6 +106,7 @@ rxBitStream = qam_demod(rxQamStream, M);
 imageRx = bitstreamtoimage(rxBitStream, imageSize, bitsPerPixel);
 
 % Plot images
+%%
 figure(pics);
 subplot(2,2,3); colormap(colorMap); image(imageRx); axis image; title(strcat('On-Off bit loading -- ',num2str(berTransmission))); drawnow;
 
@@ -127,7 +128,7 @@ num = floor(fs/N);
 ofdmStream = ofdm_mod(qam_trainblock, N, L, qam_trainblock, num, 1);
 ofdmStream = [ofdmStream;zeros(1*fs,1)];
 
-[simin,nbsecs,fs,pulse]=initparams(ofdmStream,fs, L);
+[simin,nbsecs,fs,pulse]=initparams(ofdmStream,fs, L,1);
 simin = 0.25 * simin;
 sim('recplay');
 out = simout.signals.values;
