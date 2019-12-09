@@ -3,7 +3,7 @@ M_default = 16;
 N_default = 1024;
 L_default = 320;
 gamma = 10;
-BWusage = 0.8;
+% BWusage = 0.8;
 %% Simple transmssion
 M = M_default;
 N = N_default;
@@ -50,7 +50,7 @@ out = simout.signals.values;
 % rxOfdmStreamWithNoise = awgn(rxOfdmStream, 30, 'measured');
 %%
 % OFDM demodulation
-mu = 0.1;
+mu = 0.5;
 alphaOverride = 1e-12;
 if (alphaOverride == 0)
     alpha = 10^(floor(log10(rxOfdmStream(floor(length(rxOfdmStream)/3))) * 2 - 1));

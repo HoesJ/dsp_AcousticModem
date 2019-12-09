@@ -33,10 +33,10 @@ Wk = 1/conj(Hk(1))+delta;
 u =transpose(Yk);
 D = transpose(Xk);
 initialW = Wk;
-mu = 0.1;
+mu = 0.2;
 alpha = 0.1; %klein tov uT*u
-[W,filteredOut] = adaptive_channel_filter(u,D, initialW, mu, alpha);
+[W,filteredOut] = adaptive_channel_filter(u,initialW, mu, alpha,M);
 %%
 figure
-subplot(2,1,1); semilogy(abs(1./conj(W)-transpose([Hk(1);Hk])));
-subplot(2,1,2); semilogy(abs(filteredOut - transpose(Xk)));
+subplot(2,1,1); semilogy(abs(1./conj(W)-transpose([Hk(1);Hk]))); title('Error on channel');
+subplot(2,1,2); semilogy(abs(filteredOut - transpose(Xk))); title('Error on expected output');
