@@ -10,6 +10,9 @@ function visualize_demod(rxBitStream, H, refreshRate, Ld, N, M, pixPerPacket)
         subplot(2,2,1); plot(abs(ifft(H(:,i))));
         subplot(2,2,2); colormap(colorMap); image(imageData); axis image; title('Original image'); drawnow;
         subplot(2,2,3); plot(abs(H(:,i)));
+        if (i*pixPerPacket > length(rxBitStream))
+            break
+        end
         rximage = bitstreamtoimage(rxBitStream(1:i*pixPerPacket), imageSize, bitsPerPixel);
         subplot(2,2,4); image(rximage);
        

@@ -3,7 +3,7 @@ M_default = 16;
 N_default = 1024;
 L_default = 320;
 gamma = 10;
-BWusage = 1;
+BWusage = 0.8;
 %% Simple transmssion
 M = M_default;
 N = N_default;
@@ -17,8 +17,8 @@ else
     qam_trainblock = qam_mod(trainblock,M);
     num = floor(fs/N/1.5);
     ofdmStream = ofdm_mod(qam_trainblock, N, L, qam_trainblock, num);
-    [simin,nbsecs,fs,pulse]=initparams(ofdmStream,fs, L,0.1);
-    simin = 0.25 * simin;
+    [simin,nbsecs,fs,pulse]=initparams(ofdmStream,fs, L);
+%     simin = 0.25 * simin;
     sim('recplay');
     out = simout.signals.values;
     [rxOfdmStream,~] = alignIO(out,pulse);
@@ -42,16 +42,16 @@ qamStream= qam_mod(bitStream, M);
 ofdmStream = ofdm_mod(qamStream, N, L, qam_trainblock, Lt, usedbins);
 
 % transmit
-% [simin,nbsecs,fs,pulse]=initparams(ofdmStream,fs, L);
-% sim('recplay');
-% out = simout.signals.values;
-% [rxOfdmStream,~] = alignIO(out,pulse);
-rxOfdmStream = fftfilt(h,ofdmStream);
-rxOfdmStreamWithNoise = awgn(rxOfdmStream, 30, 'measured');
+[simin,nbsecs,fs,pulse]=initparams(ofdmStream,fs, L);
+sim('recplay');
+out = simout.signals.values;
+[rxOfdmStream,~] = alignIO(out,pulse,40);
+% rxOfdmStream = fftfilt(h,ofdmStream);
+% rxOfdmStreamWithNoise = awgn(rxOfdmStream, 30, 'measured');
 %%
 % OFDM demodulation
 mu = 0.1;
-alphaOverride = 1e-8;
+alphaOverride = 1e-12;
 if (alphaOverride == 0)
     alpha = 10^(floor(log10(rxOfdmStream(floor(length(rxOfdmStream)/3))) * 2 - 1));
 else

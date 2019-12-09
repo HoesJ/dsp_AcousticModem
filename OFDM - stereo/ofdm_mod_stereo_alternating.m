@@ -22,7 +22,7 @@ function [ofdm_seq1, ofdm_seq2] = ofdm_mod_stereo_alternating(qamsig1,qamsig2, N
         ofdm_data = ifft(dataframe);
         
         % Training frames
-        trainingframe = [0;trainblock;0;conj(flip(trainblock))];
+        trainingframe = [0;a.*trainblock;0;conj(flip(a.*trainblock))];
         ofdm_training = ifft(trainingframe);
         
         % Interleaving of data and training
@@ -59,7 +59,7 @@ function [ofdm_seq1, ofdm_seq2] = ofdm_mod_stereo_alternating(qamsig1,qamsig2, N
         ofdm_data = ifft(dataframe);
         
         % Training frames
-        trainingframe = [0;trainblock;0;conj(flip(trainblock))];
+        trainingframe = [0;b.*trainblock;0;conj(flip(b.*trainblock))];
         ofdm_training = ifft(trainingframe);
         
         % Interleaving of data and training

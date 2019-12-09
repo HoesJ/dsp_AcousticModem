@@ -7,12 +7,12 @@ gamma = 10;
 M = M_default;
 N = N_default;
 L = L_default;
-Lt = 10;
+Lt = 15;
 
 % Convert; BMP image to bitstream
 [bitStream, imageData, colorMap, imageSize, bitsPerPixel] = imagetobitstream('image.bmp');
 
-%training block generation
+%training block gen  ration
 trainblock = randi([0,1],(N/2-1)*log2(M),1);
 qam_trainblock = qam_mod(trainblock,M);
 
@@ -75,13 +75,13 @@ qam_trainblock = qam_mod(trainblock,M);
 qamStream = qam_mod(bitStream, M);
 
 % OFDM modulation
-% [ofdmStreamLeft,ofdmStreamRight] = ofdm_mod_stereo(qamStream,qamStream, N, L, qam_trainblock, Lt,a,b);
-[ofdmStreamLeft,ofdmStreamRight] = ofdm_mod_stereo_alternating(qamStream,qamStream, N, L, qam_trainblock, Lt, Ld,a,b);
+[ofdmStreamLeft,ofdmStreamRight] = ofdm_mod_stereo(qamStream,qamStream, N, L, qam_trainblock, Lt,a,b);
+% [ofdmStreamLeft,ofdmStreamRight] = ofdm_mod_stereo_alternating(qamStream,qamStream, N, L, qam_trainblock, Lt, Ld,a,b);
 
 [simin,nbsecs,fs,pulse]=initparams_stereo(ofdmStreamLeft,ofdmStreamRight, fs, L);
 sim('recplay');
 out = simout.signals.values;
-[rxOfdmStream,~] = alignIO(out,pulse);
+[rxOfdmStream,~] = alignIO(out,pulse,40);
 
 %% OFDM demodulation
 mu = 0.1;
@@ -92,8 +92,8 @@ else
     alpha = alphaOverride;
 end
 
-% [rxQamStream, H] = ofdm_demod_stereo(rxOfdmStream,N,L,qam_trainblock,Lt,mu,alpha,M);
-[rxQamStream,H] = ofdm_demod_stereo_alternating(rxOfdmStream,N,L,trainblock,Lt,Ld);
+[rxQamStream, H] = ofdm_demod_stereo(rxOfdmStream,N,L,qam_trainblock,Lt,mu,alpha,M);
+% [rxQamStream,H] = ofdm_demod_stereo_alternating(rxOfdmStream,N,L,qam_trainblock,Lt,Ld);
 
 % QAM demodulation
 rxBitStream = qam_demod(rxQamStream, M);
@@ -108,3 +108,8 @@ imageRx = bitstreamtoimage(rxBitStream, imageSize, bitsPerPixel);
 pics = figure;
 subplot(2,2,1); colormap(colorMap); image(imageData); axis image; title('Original image'); drawnow;
 subplot(2,2,2); colormap(colorMap); image(imageRx); axis image; title(strcat('Simple transmission -- ',num2str(berTransmission))); drawnow;
+
+%%
+refreshRate = (N/2-1)*Ld / fs; % (samples / channel estimate) / (samples / s) = s / channel estimate
+pixPerPacket = (N/2-1)*log2(M)*Ld;
+visualize_demod(rxBitStream, H, refreshRate, 1, N, M, pixPerPacket);
