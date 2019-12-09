@@ -1,7 +1,9 @@
-function [a,b, H1and2] = fixed_transmitter_side_beamformer(h1,h2)
+function [a,b, H1and2] = fixed_transmitter_side_beamformer(h1,h2,N)
 
-    H1 = fft(h1);
-    H2 = fft(h2);
+    H1 = fft(h1,N);
+    H2 = fft(h2,N);
+    H1 = H1(2:512);
+    H2 = H2(2:512);
 
     a = conj(H1)./ sqrt(H1.*conj(H1)+H2.*conj(H2));
     b = conj(H2)./ sqrt(H1.*conj(H1)+H2.*conj(H2));
