@@ -1,4 +1,4 @@
-function [qamsig,H] = ofdm_demod(ofdm_seq,N,L,trainblock,Lt,a,b,mu,alpha,qam_order,usedbins)
+function [qamsig,H] = ofdm_demod(ofdm_seq,N,L,trainblock,Lt,mu,alpha,qam_order,usedbins)
     if (nargin < 11)
        usedbins = 1:(N/2-1); 
     end
@@ -29,16 +29,12 @@ function [qamsig,H] = ofdm_demod(ofdm_seq,N,L,trainblock,Lt,a,b,mu,alpha,qam_ord
 %     H = awgn(H, 10, 'measured');
     
     % Adaptive filtering
-%     [W, filteredOutput] = adaptive_channel_filter(qamsig(:,Lt+1:end),conj(1./H),mu,alpha,qam_order);
-%     H = [H,1./conj(W)];
-    % Direct extraction
-    filteredOutput = diag(H) \ qamsig;
-    
-    % remove a and b
-    
-    
+    [W, filteredOutput] = adaptive_channel_filter(qamsig(:,Lt+1:end),conj(1./H),mu,alpha,qam_order);
+    H = [H,1./conj(W)];
+% %     filteredOutput = diag(H) \ qamsig;
+   
     % data extraction
-    datasig = filteredOutput(usedbins,Lt+1:end);
+    datasig = filteredOutput(usedbins,:);
     
     % reshape to a line
     qamsig = datasig(:);    

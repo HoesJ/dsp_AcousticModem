@@ -53,15 +53,15 @@ qamStream = qam_mod(bitStream, M);
 rxOfdmStream = (fftfilt(h1,ofdmStream1)+fftfilt(h2,ofdmStream2));
 
 % OFDM demodulation
-mu = 0.1;
-alphaOverride = 1e-8;
+mu = 0.5;
+alphaOverride = 0;
 if (alphaOverride == 0)
     alpha = 10^(floor(log10(rxOfdmStream(length(rxOfdmStream)/3)) * 2 - 1));
 else
     alpha = alphaOverride;
 end
 
-[rxQamStream, H] = ofdm_demod_stereo(rxOfdmStream,N,L,qam_trainblock,Lt,a,b,mu,alpha,M);
+[rxQamStream, H] = ofdm_demod_stereo(rxOfdmStream,N,L,qam_trainblock,Lt,mu,alpha,M);
 
 % QAM demodulation
 rxBitStream = qam_demod(rxQamStream, M);
@@ -78,7 +78,7 @@ subplot(2,2,1); colormap(colorMap); image(imageData); axis image; title('Origina
 subplot(2,2,2); colormap(colorMap); image(imageRx); axis image; title(strcat('Simple transmission -- ',num2str(berTransmission))); drawnow;
 
 figure
-plot(abs(H)); hold on; plot(abs(H12));
+plot(H); hold on; plot(H12);
 %%
 % refreshRate = (N/2-1) * Ld / fs; % (samples / channel estimate) / (samples / s) = s / channel 
 refreshRate = 1;
