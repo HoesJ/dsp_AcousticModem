@@ -26,13 +26,14 @@ function [qamsig,H] = ofdm_demod_stereo(ofdm_seq,N,L,trainblock,Lt,mu,alpha,qam_
         b = repmat(trainblock(j), size(A,1),1);
         H(j) = b\A;
     end
+%     H = awgn(H, 10, 'measured');
+    
     % Adaptive filtering
-%     [W, filteredOutput] = adaptive_channel_filter(qamsig(:,Lt+1:end),D,conj(1./H),mu,alpha,qam_order);
-%     [W, filteredOutput] = adaptive_channel_filter(qamsig(:,Lt+1:end),conj(1./H),mu,alpha,qam_order);
+    [W, filteredOutput] = adaptive_channel_filter(qamsig(:,Lt+1:end),conj(1./H),mu,alpha,qam_order);
 %     H = [H,1./conj(W)];
-
+    H = [1./conj(W)];
+    
     % data extraction
-%     datasig = filteredOutput(usedbins,:);
     datasig = filteredOutput(usedbins,:);
     
     % reshape to a line

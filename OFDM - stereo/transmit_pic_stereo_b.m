@@ -27,12 +27,21 @@ qamStream = qam_mod(zeros(length(bitStream),1), M);
 ofdmStreamRight = [zeros(length(ofdmStream1),1); ofdmStream2];
 ofdmStreamLeft = [ofdmStream1; zeros(length(ofdmStream2),1)];
 
-% transmit
+%% transmit
 [simin,nbsecs,fs,pulse]=initparams_stereo(ofdmStreamLeft,ofdmStreamRight, fs, L);
 sim('recplay');
 out = simout.signals.values;
 [rxOfdmStream,~] = alignIO(out,pulse);
 
+%% splitting received signal in right and left
+rxOfdmStreamLeft = rxOfdmStream(1:length(ofdmStream1),:);
+rxOfdmStreamRight = rxOfdmStream(length(ofdmStream1): length(ofdmStream1)*2,:);
+figure
+subplot(3,1,1);plot(rxOfdmStream);
+subplot(3,1,2);plot(rxOfdmStreamLeft);
+subplot(3,1,3);plot(rxOfdmStreamRight);
+
+%%
 % OFDM demodulation
 mu = 0.3;
 alphaOverride = 0;
@@ -41,5 +50,5 @@ if (alphaOverride == 0)
 else
     alpha = alphaOverride;
 end
-h1and2 = ifft(H1and2);
-[rxQamStream,H] = ofdm_demod(rxOfdmStream,N,L,trainblock,Lt,mu,alpha,M);
+
+[qamsig,H] = ofdm_demod(rxOfdmStreamLeft,N,L,trainblock);
