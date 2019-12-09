@@ -62,6 +62,7 @@ M = M_default;
 N = N_default;
 L = L_default;
 Lt = 3;
+Ld = 5;
 
 % Convert; BMP image to bitstream
 [bitStream, imageData, colorMap, imageSize, bitsPerPixel] = imagetobitstream('image.bmp');
@@ -74,7 +75,8 @@ qam_trainblock = qam_mod(trainblock,M);
 qamStream = qam_mod(bitStream, M);
 
 % OFDM modulation
-[ofdmStreamLeft,ofdmStreamRight] = ofdm_mod_stereo(qamStream,qamStream, N, L, qam_trainblock, Lt,a,b);
+% [ofdmStreamLeft,ofdmStreamRight] = ofdm_mod_stereo(qamStream,qamStream, N, L, qam_trainblock, Lt,a,b);
+[ofdmStreamLeft,ofdmStreamRight] = ofdm_mod_stereo_alternating(qamStream,qamStream, N, L, qam_trainblock, Lt, Ld,a,b);
 
 [simin,nbsecs,fs,pulse]=initparams_stereo(ofdmStreamLeft,ofdmStreamRight, fs, L);
 sim('recplay');
@@ -90,7 +92,8 @@ else
     alpha = alphaOverride;
 end
 
-[rxQamStream, H] = ofdm_demod_stereo(rxOfdmStream,N,L,qam_trainblock,Lt,a,b,mu,alpha,M);
+% [rxQamStream, H] = ofdm_demod_stereo(rxOfdmStream,N,L,qam_trainblock,Lt,mu,alpha,M);
+[rxQamStream,H] = ofdm_demod_stereo_alternating(rxOfdmStream,N,L,trainblock,Lt,Ld);
 
 % QAM demodulation
 rxBitStream = qam_demod(rxQamStream, M);

@@ -35,6 +35,7 @@ function [qamsig,H] = ofdm_demod(ofdm_seq,N,L,trainblock,Lt,mu,alpha,qam_order,u
    
     % data extraction
     datasig = filteredOutput(usedbins,:);
+>>>>>>> 294fbf5626cf254c53a69db584f38df23adae78c
     
     % reshape to a line
     qamsig = datasig(:);    
