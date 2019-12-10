@@ -1,5 +1,5 @@
 fs =16000;
-M_default = 16;
+M_default = 8;
 N_default = 1024;
 L_default = 320;
 gamma = 10;
@@ -31,7 +31,7 @@ ofdmStreamLeft = [ofdmStream1; zeros(length(ofdmStream2),1)];
 [simin,nbsecs,fs,pulse]=initparams_stereo(ofdmStreamLeft,ofdmStreamRight, fs, L);
 sim('recplay');
 out = simout.signals.values;
-[rxOfdmStream,~] = alignIO(out,pulse);
+[rxOfdmStream,~] = alignIO(out,pulse,40);
 
 % splitting received signal in right and left
 rxOfdmStreamLeft = rxOfdmStream(1:length(ofdmStream1),:);
@@ -61,7 +61,7 @@ subplot(3,1,3);plot(abs(H1and2));
 M = M_default;
 N = N_default;
 L = L_default;
-Lt = 3;
+Lt = 5;
 Ld = 5;
 
 % Convert; BMP image to bitstream
@@ -75,8 +75,8 @@ qam_trainblock = qam_mod(trainblock,M);
 qamStream = qam_mod(bitStream, M);
 
 % OFDM modulation
-[ofdmStreamLeft,ofdmStreamRight] = ofdm_mod_stereo(qamStream,qamStream, N, L, qam_trainblock, Lt,a,b);
-% [ofdmStreamLeft,ofdmStreamRight] = ofdm_mod_stereo_alternating(qamStream,qamStream, N, L, qam_trainblock, Lt, Ld,a,b);
+% [ofdmStreamLeft,ofdmStreamRight] = ofdm_mod_stereo(qamStream,qamStream, N, L, qam_trainblock, Lt,a,b);
+[ofdmStreamLeft,ofdmStreamRight] = ofdm_mod_stereo_alternating(qamStream,qamStream, N, L, qam_trainblock, Lt, Ld,a,b);
 
 [simin,nbsecs,fs,pulse]=initparams_stereo(ofdmStreamLeft,ofdmStreamRight, fs, L);
 sim('recplay');
@@ -92,8 +92,8 @@ else
     alpha = alphaOverride;
 end
 
-[rxQamStream, H] = ofdm_demod_stereo(rxOfdmStream,N,L,qam_trainblock,Lt,mu,alpha,M);
-% [rxQamStream,H] = ofdm_demod_stereo_alternating(rxOfdmStream,N,L,qam_trainblock,Lt,Ld);
+% [rxQamStream, H] = ofdm_demod_stereo(rxOfdmStream,N,L,qam_trainblock,Lt,mu,alpha,M);
+[rxQamStream,H] = ofdm_demod_stereo_alternating(rxOfdmStream,N,L,qam_trainblock,Lt,Ld);
 
 % QAM demodulation
 rxBitStream = qam_demod(rxQamStream, M);

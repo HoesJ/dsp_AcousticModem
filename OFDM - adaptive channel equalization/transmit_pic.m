@@ -1,14 +1,14 @@
 fs =16000;
-M_default = 16;
+M_default = 8;
 N_default = 1024;
-L_default = 320;
+L_default = 420;
 gamma = 10;
-% BWusage = 0.8;
+BWusage = 1;
 %% Simple transmssion
 M = M_default;
 N = N_default;
 L = L_default;
-Lt = 3;
+Lt = 10;
 %% Probe channel
 if (BWusage == 1)
     usedbins = 1:N/2-1;
@@ -45,13 +45,15 @@ ofdmStream = ofdm_mod(qamStream, N, L, qam_trainblock, Lt, usedbins);
 [simin,nbsecs,fs,pulse]=initparams(ofdmStream,fs, L);
 sim('recplay');
 out = simout.signals.values;
-[rxOfdmStream,~] = alignIO(out,pulse,40);
+%%
+[rxOfdmStream,~] = alignIO(out,pulse,80);
+subplot(2,1,1);plot(out);subplot(2,1,2); plot(rxOfdmStream);
 % rxOfdmStream = fftfilt(h,ofdmStream);
-% rxOfdmStreamWithNoise = awgn(rxOfdmStream, 30, 'measured');
+% rxOfdmStreamWithNoise = awgn(rxOfdmStream, 20, 'measured');
 %%
 % OFDM demodulation
-mu = 0.5;
-alphaOverride = 1e-12;
+mu = 0.1;
+alphaOverride = 1e-9;
 if (alphaOverride == 0)
     alpha = 10^(floor(log10(rxOfdmStream(floor(length(rxOfdmStream)/3))) * 2 - 1));
 else
@@ -59,7 +61,7 @@ else
 end
 [rxQamStream, H] = ofdm_demod(rxOfdmStream, N, L, qam_trainblock, Lt, mu,alpha,M, usedbins);
 figure;
-subplot(2,1,1); plot(abs(H(256,:)));
+subplot(2,1,1); plot(abs(H(100,:)));
 subplot(2,1,2); plot(abs(H(300,:)));
 
 % QAM demodulation

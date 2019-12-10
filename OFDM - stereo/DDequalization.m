@@ -33,9 +33,9 @@ Wk = 1/conj(Hk(1))+delta;
 u =transpose(Yk);
 D = transpose(Xk);
 initialW = Wk;
-mu = 0.1;
+mu = 1;
 alpha = 0.1; %klein tov uT*u
-[W,filteredOut] = adaptive_channel_filter(u,D, initialW, mu, alpha);
+[W,filteredOut] = adaptive_channel_filter(u,initialW, mu, alpha,M);
 %%
 figure
 subplot(2,1,1); semilogy(abs(1./conj(W)-transpose([Hk(1);Hk])));
